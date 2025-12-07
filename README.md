@@ -1,47 +1,73 @@
-# Hệ thống Quản lý Cửa hàng Trang sức (Jewelry Management System)
+# Hệ thống Quản lý Cửa hàng Trang sức
 
-Đây là ứng dụng web quản lý cửa hàng vàng bạc đá quý, bao gồm các chức năng quản lý sản phẩm, tồn kho và hiển thị danh sách sản phẩm.
-
-## Công nghệ sử dụng
-
-- **Frontend:** ReactJS, Ant Design, CSS.
-- **Backend:** Node.js, Express.js.
-- **Database:** MySQL.
-
-## Yêu cầu cài đặt
-
-Trước khi chạy dự án, hãy đảm bảo máy tính của bạn đã cài đặt:
-
-1.  **Node.js**: (Phiên bản 14 trở lên).
-2.  **MySQL**: (Thông qua XAMPP).
-3.  **Git**: Để clone source code.
+Dự án website quản lý cửa hàng vàng bạc đá quý, bao gồm Backend (Node.js/Express) và Frontend (ReactJS/Vite).
 
 ---
 
-## Hướng dẫn cài đặt và chạy
+## Yêu cầu hệ thống (Prerequisites)
 
-### Bước 1: Cấu hình Cơ sở dữ liệu (Database)
+Để chạy được dự án này, máy tính cần cài đặt sẵn:
 
-1.  Mở phần mềm quản lý Database (phpMyAdmin hoặc MySQL Workbench).
-2.  Tạo một database mới tên là: `qlbh`
-3.  Import file SQL:
-    - Tìm file `.sql` trong thư mục source code (`backend/sql/data.sql`).
-    - Import file này vào database `qlbh` vừa tạo để có database.
-4.  **Lưu ý cấu hình:**
-    - Mở file `backend/src/config/connectDB.js`.
-    - Kiểm tra thông tin `user` (thường là 'root') và `password` (để trống hoặc điền pass của bạn) xem đã khớp với máy bạn chưa.
+1.  **Node.js**
+2.  **MySQL** (XAMPP).
+3.  **Git**.
 
-### Bước 2: Cài đặt và chạy Backend
+---
 
-Mở một cửa sổ Terminal (CMD/PowerShell) và chạy các lệnh sau:
+## Hướng dẫn Cài đặt & Chạy chi tiết
 
-```bash
-# 1. Di chuyển vào thư mục backend
-cd backend
+Để hệ thống hoạt động, bạn cần chạy theo thứ tự: **Database** -> **Backend** -> **Frontend**.
 
-# 2. Cài đặt các thư viện (node_modules)
-npm install
+### Bước 1: Cấu hình Database
 
-# 3. Chạy server
-npm start
-```
+Trước khi chạy code, bạn cần khởi tạo cơ sở dữ liệu.
+
+1.  Mở **XAMPP**, bật **Apache** và **MySQL** (nút Start).
+2.  Truy cập `http://localhost/phpmyadmin`.
+3.  Tạo một Database mới tên là: `qlbh` (chính xác tên này).
+4.  Chọn database `qlbh` vừa tạo, vào tab **Import** và tải file `.sql` của dự án lên (file data mẫu).
+
+---
+
+### Bước 2: Cài đặt và Chạy Backend
+
+Server sẽ chạy ở cổng `8080`.
+
+1.  Mở terminal trong VS Code.
+2.  Di chuyển vào thư mục backend:
+    ```bash
+    cd backend
+    ```
+3.  Cài đặt các thư viện cần thiết (chỉ làm lần đầu):
+    ```bash
+    npm install
+    ```
+4.  Khởi động Server:
+    ```bash
+    npm start
+    ```
+    > **Dấu hiệu thành công:** Terminal hiện thông báo:
+    > `Server đang chạy ở port http://localhost:8080` > `Kết nối Database qlbh thành công!`
+
+**Lưu ý:** Giữ nguyên Terminal này, **KHÔNG ĐƯỢC TẮT** để server luôn chạy.
+
+---
+
+### 3️Bước 3: Cài đặt và Chạy Frontend (Client)
+
+Frontend sẽ chạy ở cổng `5173`.(mặc định)
+
+1.  Mở thêm một Terminal mới (lưu ý terminal backend vẫn phải được chạy).
+2.  Di chuyển vào thư mục frontend:
+    ```bash
+    cd frontend
+    ```
+3.  Cài đặt các thư viện (chỉ làm lần đầu):
+    ```bash
+    npm install
+    ```
+4.  Chạy dự án:
+    ```bash
+    npm run dev
+    ```
+5.  Giữ phím **Ctrl** và click vào đường link hiện ra trên terminal (ví dụ: `http://localhost:5173`) để mở trình duyệt.
