@@ -1,14 +1,22 @@
 import React, { useState, useEffect } from "react";
-import { Table, Tag, Input, Button, Select } from "antd";
-import { DeleteOutlined, PlusOutlined } from "@ant-design/icons";
+import { Table, Tag, Input, Button, Select, Modal, message } from "antd";
+import {
+  DeleteOutlined,
+  PlusOutlined,
+  ExclamationCircleOutlined,
+} from "@ant-design/icons";
 import "./ProductPage.css";
+import getAllProductsService, {
+  deleteProductsService,
+  activateProductService,
+} from "../../services/productService";
 
 const ProductPage = () => {
   // khởi tạo dữ liệu cho search
   const [data, setData] = useState();
   const [filteredData, setFilteredData] = useState();
   const [searchText, setSearchText] = useState("");
-  // Khỏi tạo cho nút xóa(có dữ liệu mới được xóa)
+  // Khỏi tạo cho nút xóa
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [state, setState] = useState({ selectedProducts: [] });
   const [loading, setLoading] = useState(false);
@@ -36,24 +44,20 @@ const ProductPage = () => {
   const fetchData = async () => {
     setLoading(true);
     try {
-      // Gọi xuống backend
-      const response = await fetch("http://localhost:8080/api/products");
-      const result = await response.json();
-
-      if (result.data) {
-        const formattedData = result.data.map((item) => ({
+      const res = await getAllProductsService();
+      if (res && res.errCode === 0) {
+        const formattedData = res.data.map((item) => ({
           key: item.MaSanPham,
           ProductName: item.TenSanPham,
           ProductID: item.MaSanPham,
           category: categoryMap[item.MaLoaiSanPham],
           stock: item.SoLuongTon,
-          // Format giá tiền việt nam
           price: new Intl.NumberFormat("vi-VN", {
             style: "currency",
             currency: "VND",
           }).format(Number(item.DonGiaBanRa)),
           image: item.HinhAnh || "https://via.placeholder.com/40",
-          isDelete: item.DaXoa || false,
+          isDelete: item.isDelete || false,
         }));
 
         setData(formattedData);
@@ -61,6 +65,57 @@ const ProductPage = () => {
       }
     } catch (error) {
       console.error("Lỗi khi lấy dữ liệu:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  const handleDeleteProducts = () => {
+    if (state.selectedProducts.length === 0) return;
+    Modal.confirm({
+      title: "Xác nhận xóa",
+      icon: <ExclamationCircleOutlined />,
+      content: `Bạn có chắc chắn muốn xóa ${state.selectedProducts.length} sản phẩm này không?`,
+      okText: "Xóa ngay",
+      okType: "danger",
+      cancelText: "Hủy",
+
+      // Khi người dùng bấm nút "Xóa ngay"
+      onOk: async () => {
+        setLoading(true); // Bật loading trang
+        try {
+          const res = await deleteProductsService(state.selectedProducts);
+          if (res && res.errCode === 0) {
+            message.success("Xóa thành công!");
+            // 1. Xóa xong thì bỏ chọn các dòng
+            setState({ selectedProducts: [] });
+            // 2. Gọi lại API lấy danh sách mới nhất để cập nhật bảng
+            await fetchData();
+          } else {
+            message.error(res.message || "Xóa thất bại!");
+          }
+        } catch (error) {
+          console.error(error);
+          message.error("Có lỗi xảy ra khi xóa!");
+        } finally {
+          setLoading(false);
+        }
+      },
+    });
+  };
+  const handleActivate = async (id) => {
+    try {
+      setLoading(true);
+      const res = await activateProductService(id);
+
+      if (res && res.errCode === 0) {
+        message.success("Đã kích hoạt lại sản phẩm!");
+        await fetchData(); // Load lại bảng để thấy trạng thái thay đổi
+      } else {
+        message.error(res.message || "Kích hoạt thất bại");
+      }
+    } catch (error) {
+      console.error(error);
+      message.error("Lỗi khi kích hoạt");
     } finally {
       setLoading(false);
     }
@@ -132,7 +187,12 @@ const ProductPage = () => {
             {record.isDelete ? "Đã đóng" : "Đang bán"}
           </Tag>
           {record.isDelete && (
-            <Button type="primary" size="small" ghost>
+            <Button
+              type="active"
+              size="small"
+              ghost
+              onClick={() => handleActivate(record.ProductID)}
+            >
               Kích hoạt
             </Button>
           )}
@@ -156,8 +216,9 @@ const ProductPage = () => {
               icon={<DeleteOutlined />}
               className="delete-all-button"
               disabled={state.selectedProducts.length === 0}
+              onClick={handleDeleteProducts}
             >
-              Xóa{" "}
+              Xóa
               {state.selectedProducts.length > 0
                 ? `(${state.selectedProducts.length})`
                 : ""}
@@ -180,6 +241,7 @@ const ProductPage = () => {
           dataSource={filteredData}
           pagination={{ pageSize: 8 }}
           rowSelection={{
+            selectedRowKeys: state.selectedProducts,
             onChange: (selectedRowKeys) => {
               setState({ selectedProducts: selectedRowKeys });
             },
