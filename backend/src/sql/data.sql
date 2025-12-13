@@ -219,16 +219,16 @@ INSERT INTO LOAISANPHAM (MaLoaiSanPham, TenLoaiSanPham, MaDVT, PhanTramLoiNhuan)
 
 -- sản phẩm
 INSERT INTO SANPHAM (MaSanPham, TenSanPham, MaLoaiSanPham, SoLuongTon, DonGiaMuaVao, DonGiaBanRa, HinhAnh) VALUES
-('SP01', N'Nhẫn Vàng 24K Trơn 1 Chỉ', 'LSP01', 50, 5600000, 8000000, '#'),
-('SP02', N'Nhẫn Cưới Kim Cương', 'LSP07', 20, 14000000, 20000000, '#'),
-('SP03', N'Dây Chuyền Vàng Ý 18K', 'LSP03', 30, 3500000, 5000000, '#'),
-('SP04', N'Lắc Tay Bạc Charm', 'LSP04', 100, 700000, 1000000, '#'),
-('SP05', N'Viên Kim Cương 5ly4', 'LSP05', 10, 21000000, 30000000, '#'),
-('SP06', N'Bông Tai Ngọc Trai', 'LSP10', 40, 2100000, 3000000, '#'),
-('SP07', N'Vòng Cẩm Thạch', 'LSP06', 15, 5600000, 8000000, '#'),
-('SP08', N'Kiềng Vàng 24K 5 Chỉ', 'LSP01', 10, 28000000, 40000000, '#'),
-('SP09', N'Mặt Dây Chuyền Ruby', 'LSP06', 25, 4200000, 6000000, '#'),
-('SP10', N'Nhẫn Nam Đá Đen', 'LSP02', 35, 2800000, 4000000, '#');
+('SP01', N'Nhẫn Vàng 24K Trơn 1 Chỉ', 'LSP01', 50, 5600000, 8000000, 'https://res.cloudinary.com/dfwvvjaxz/image/upload/v1765604185/nh%E1%BA%ABn_1_ch%E1%BB%89_rzkjwy.png'),
+('SP02', N'Nhẫn Cưới Kim Cương', 'LSP07', 20, 14000000, 20000000, 'https://res.cloudinary.com/dfwvvjaxz/image/upload/v1765604186/nh%E1%BA%ABn_c%C6%B0%E1%BB%9Bi_kim_c%C6%B0%C6%A1ng_f7pomv.png'),
+('SP03', N'Dây Chuyền Vàng Ý 18K', 'LSP03', 30, 3500000, 5000000, 'https://res.cloudinary.com/dfwvvjaxz/image/upload/v1765604186/d%C3%A2y_chuy%E1%BB%81n_v%C3%A0ng_%C3%BD_bk8c8j.png'),
+('SP04', N'Lắc Tay Bạc Charm', 'LSP04', 100, 700000, 1000000, 'https://res.cloudinary.com/dfwvvjaxz/image/upload/v1765604185/l%E1%BA%AFc_tay_b%E1%BA%A1c_charm_ndswre.png'),
+('SP05', N'Viên Kim Cương 5ly4', 'LSP05', 10, 21000000, 30000000, 'https://res.cloudinary.com/dfwvvjaxz/image/upload/v1765604185/5ly4_mvclzj.png'),
+('SP06', N'Bông Tai Ngọc Trai', 'LSP10', 40, 2100000, 3000000, 'https://res.cloudinary.com/dfwvvjaxz/image/upload/v1765604184/b%C3%B4ng_tai_viryzu.png'),
+('SP07', N'Vòng Cẩm Thạch', 'LSP06', 15, 5600000, 8000000, 'https://res.cloudinary.com/dfwvvjaxz/image/upload/v1765604186/v%C3%B2ng_c%E1%BA%A9m_th%E1%BA%A1ch_eag5rf.png'),
+('SP08', N'Kiềng Vàng 24K 5 Chỉ', 'LSP01', 10, 28000000, 40000000, 'https://res.cloudinary.com/dfwvvjaxz/image/upload/v1765604186/ki%E1%BB%81ng_v%C3%A0ng_wavxbc.png'),
+('SP09', N'Mặt Dây Chuyền Ruby', 'LSP06', 25, 4200000, 6000000, 'https://res.cloudinary.com/dfwvvjaxz/image/upload/v1765604185/m%E1%BA%B7t_chuy%E1%BB%81n_v%C3%A0ng_doo9ns.png'),
+('SP10', N'Nhẫn Nam Đá Đen', 'LSP02', 35, 2800000, 4000000, 'https://res.cloudinary.com/dfwvvjaxz/image/upload/v1765604187/nh%E1%BA%ABn_nam_knrpnh.png');
 
 -- nhà cung cấp
 INSERT INTO NHACUNGCAP (MaNCC, TenNCC, DiaChi, SoDienThoai) VALUES

@@ -1,46 +1,77 @@
 import React, { useState, useEffect } from "react";
-import { Table, Tag, Input, Button, Select, Modal, message } from "antd";
+import {
+  Table,
+  Tag,
+  Input,
+  Button,
+  Select,
+  Modal,
+  message,
+  Form,
+  Upload,
+} from "antd";
 import {
   DeleteOutlined,
   PlusOutlined,
   ExclamationCircleOutlined,
+  UploadOutlined,
 } from "@ant-design/icons";
 import "./ProductPage.css";
 import getAllProductsService, {
   deleteProductsService,
   activateProductService,
+  createNewProductService,
+  getAllCategoriesService,
+  updateProductService,
 } from "../../services/productService";
 
 const ProductPage = () => {
-  // khởi tạo dữ liệu cho search
-  const [data, setData] = useState();
-  const [filteredData, setFilteredData] = useState();
+  // --- KHỞI TẠO STATE ---
+  const [data, setData] = useState([]); // Khởi tạo mảng rỗng để tránh lỗi
+  const [filteredData, setFilteredData] = useState([]);
   const [searchText, setSearchText] = useState("");
-  // Khỏi tạo cho nút xóa
-  const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [state, setState] = useState({ selectedProducts: [] });
   const [loading, setLoading] = useState(false);
-  const categoryMap = {
-    LSP01: "Nhẫn",
-    LSP02: "Nhẫn Cưới",
-    LSP03: "Dây Chuyền",
-    LSP04: "Lắc Tay",
-    LSP05: "Bông Tai",
-    LSP06: "Vàng",
-    LSP07: "Đá Quý",
-    LSP08: ".",
-    LSP09: "..",
-    LSP10: "...",
-  };
-  const allCategories = Object.values(categoryMap).map((item) => ({
-    text: item,
-    value: item,
-  }));
 
+  const [fileList, setFileList] = useState([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [form] = Form.useForm();
+
+  const [categories, setCategories] = useState([]);
+  const [isEditMode, setIsEditMode] = useState(false);
+  // LOAD DỮ LIỆU BAN ĐẦU
   useEffect(() => {
-    fetchData();
+    const initPage = async () => {
+      await fetchCategories();
+      await fetchData();
+    };
+    initPage();
   }, []);
 
+  // LẤY DANH MỤC
+  const fetchCategories = async () => {
+    try {
+      const res = await getAllCategoriesService();
+      if (res && res.errCode === 0) {
+        const rawCategories = res.data;
+
+        const options = rawCategories.map((item) => {
+          const value = item.MaLoaiSanPham;
+          const label = item.TenLoaiSanPham;
+
+          return {
+            label: label,
+            value: value,
+          };
+        });
+        setCategories(options);
+      }
+    } catch (error) {
+      console.error("Lỗi lấy danh mục:", error);
+    }
+  };
+
+  // LẤY DANH SÁCH SẢN PHẨM
   const fetchData = async () => {
     setLoading(true);
     try {
@@ -50,14 +81,14 @@ const ProductPage = () => {
           key: item.MaSanPham,
           ProductName: item.TenSanPham,
           ProductID: item.MaSanPham,
-          category: categoryMap[item.MaLoaiSanPham],
+          category: item.TenLoaiSanPham || "Chưa phân loại",
           stock: item.SoLuongTon,
           price: new Intl.NumberFormat("vi-VN", {
             style: "currency",
             currency: "VND",
           }).format(Number(item.DonGiaBanRa)),
-          image: item.HinhAnh || "https://via.placeholder.com/40",
-          isDelete: item.isDelete || false,
+          image: item.HinhAnh,
+          isDelete: item.isDelete === 1 || item.isDelete === true,
         }));
 
         setData(formattedData);
@@ -69,26 +100,51 @@ const ProductPage = () => {
       setLoading(false);
     }
   };
+
+  //XỬ LÝ XÓA
   const handleDeleteProducts = () => {
     if (state.selectedProducts.length === 0) return;
-    Modal.confirm({
-      title: "Xác nhận xóa",
-      icon: <ExclamationCircleOutlined />,
-      content: `Bạn có chắc chắn muốn xóa ${state.selectedProducts.length} sản phẩm này không?`,
-      okText: "Xóa ngay",
-      okType: "danger",
-      cancelText: "Hủy",
+    const selectedItems = data.filter((item) =>
+      state.selectedProducts.includes(item.ProductID)
+    );
 
-      // Khi người dùng bấm nút "Xóa ngay"
+    const activeItems = selectedItems.filter((item) => !item.isDelete);
+    const inactiveItems = selectedItems.filter((item) => item.isDelete);
+
+    let title = "";
+    let content = "";
+    let okText = "";
+    let okType = "danger";
+
+    if (activeItems.length > 0 && inactiveItems.length === 0) {
+      title = "Xác nhận tắt hoạt động";
+      content = `Bạn có chắc chắn muốn ngừng kinh doanh ${activeItems.length} sản phẩm này? Sản phẩm sẽ chuyển sang trạng thái "Đã đóng".`;
+      okText = "Tắt hoạt động";
+    } else if (activeItems.length === 0 && inactiveItems.length > 0) {
+      // Chỉ chọn cái đã đóng -> Hỏi xóa vĩnh viễn
+      title = "Cảnh báo xóa vĩnh viễn";
+      content = `Bạn có chắc chắn muốn XÓA VĨNH VIỄN ${inactiveItems.length} sản phẩm này? `;
+      okText = "Xóa vĩnh viễn";
+    }
+
+    Modal.confirm({
+      title: title,
+      icon: <ExclamationCircleOutlined />,
+      content: content,
+      okText: okText,
+      okType: okType,
+      cancelText: "Hủy",
       onOk: async () => {
-        setLoading(true); // Bật loading trang
+        setLoading(true);
         try {
           const res = await deleteProductsService(state.selectedProducts);
           if (res && res.errCode === 0) {
-            message.success("Xóa thành công!");
-            // 1. Xóa xong thì bỏ chọn các dòng
+            message.success(res.message);
             setState({ selectedProducts: [] });
-            // 2. Gọi lại API lấy danh sách mới nhất để cập nhật bảng
+            await fetchData();
+          } else if (res && res.errCode === 2) {
+            message.warning(res.message, 5);
+            setState({ selectedProducts: [] });
             await fetchData();
           } else {
             message.error(res.message || "Xóa thất bại!");
@@ -102,14 +158,15 @@ const ProductPage = () => {
       },
     });
   };
+
+  //XỬ LÝ KÍCH HOẠT LẠI
   const handleActivate = async (id) => {
     try {
       setLoading(true);
       const res = await activateProductService(id);
-
       if (res && res.errCode === 0) {
         message.success("Đã kích hoạt lại sản phẩm!");
-        await fetchData(); // Load lại bảng để thấy trạng thái thay đổi
+        await fetchData();
       } else {
         message.error(res.message || "Kích hoạt thất bại");
       }
@@ -120,20 +177,101 @@ const ProductPage = () => {
       setLoading(false);
     }
   };
-  const onSelectChange = (newSelectedRowKeys) => {
-    setSelectedRowKeys(newSelectedRowKeys);
-  };
 
-  const rowSelection = {
-    selectedRowKeys,
-    onChange: onSelectChange,
-  };
-  // này mới chỉ là hàm, sau này code pop up thêm sản phẩm khi click vô
+  // XỬ LÝ THÊM MỚI
   const handleCreateProduct = () => {
-    console.log("Chuyển sang trang thêm sản phẩm");
+    setIsEditMode(false);
+    setIsModalOpen(true);
+    form.resetFields();
+    setFileList([]);
   };
 
-  // xử lý search
+  const handleCreateOk = async () => {
+    try {
+      const values = await form.validateFields();
+      setLoading(true);
+
+      const formData = new FormData();
+      formData.append("MaSanPham", values.MaSanPham);
+      formData.append("TenSanPham", values.TenSanPham);
+      formData.append("MaLoaiSanPham", values.MaLoaiSanPham);
+      // Xử lý khi upload ảnh
+      if (fileList.length > 0) {
+        if (fileList[0].originFileObj) {
+          // user upload ảnh mới
+          formData.append("HinhAnh", fileList[0].originFileObj);
+        } else if (fileList[0].url) {
+          // user giữ nguyên ảnh cũ
+          formData.append("HinhAnh", fileList[0].url);
+        }
+      }
+
+      let res;
+      if (isEditMode) {
+        res = await updateProductService(formData);
+      } else {
+        res = await createNewProductService(formData);
+      }
+
+      if (res && res.errCode === 0) {
+        message.success(
+          isEditMode ? "Cập nhật thành công!" : "Thêm thành công!"
+        );
+        setIsModalOpen(false);
+        form.resetFields();
+        setFileList([]);
+        await fetchData();
+      } else {
+        message.error(res.message || "Thao tác thất bại");
+      }
+    } catch (error) {
+      console.log("Validate Failed:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  // Hàm xử lý edit
+  const handleEditProduct = (record) => {
+    setIsEditMode(true);
+    setIsModalOpen(true);
+    // Đổ dữ liệu cũ vào Form
+    form.setFieldsValue({
+      MaSanPham: record.ProductID,
+      TenSanPham: record.ProductName,
+      MaLoaiSanPham: record.category,
+    });
+
+    // Xử lý hiển thị ảnh cũ
+    if (record.image) {
+      setFileList([
+        {
+          uid: "-1",
+          name: "Ảnh hiện tại",
+          status: "done",
+          url: record.image,
+        },
+      ]);
+    } else {
+      setFileList([]);
+    }
+  };
+
+  const handleCreateCancel = () => {
+    setIsModalOpen(false);
+    form.resetFields();
+    setFileList([]);
+  };
+
+  // CẤU HÌNH TABLE & FILTER
+  const uploadProps = {
+    beforeUpload: (file) => {
+      setFileList([file]);
+      return false;
+    },
+    onRemove: () => setFileList([]),
+    fileList,
+  };
+
   const handleSearchChange = (e) => {
     const value = e.target.value.toLowerCase();
     setSearchText(value);
@@ -145,14 +283,22 @@ const ProductPage = () => {
     setFilteredData(filtered);
   };
 
-  // cấu hình table dữ liệu
+  const filterOptions = categories.map((c) => ({
+    text: c.label,
+    value: c.label,
+  }));
+
   const columns = [
     {
       title: "Tên sản phẩm",
       dataIndex: "ProductName",
       key: "ProductName",
       render: (text, record) => (
-        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+        <div
+          className="edit-product"
+          style={{ display: "flex", alignItems: "center", gap: "10px" }}
+          onClick={() => handleEditProduct(record)}
+        >
           <img
             src={record.image}
             alt={record.ProductName}
@@ -161,6 +307,7 @@ const ProductPage = () => {
               height: 40,
               objectFit: "cover",
               borderRadius: "4px",
+              border: "1px solid #eee",
             }}
           />
           <div>{text}</div>
@@ -172,7 +319,7 @@ const ProductPage = () => {
       title: "Phân loại",
       dataIndex: "category",
       key: "category",
-      filters: allCategories,
+      filters: filterOptions,
       onFilter: (value, record) => record.category === value,
       render: (category) => <Tag color="#a91811">{category}</Tag>,
     },
@@ -190,7 +337,6 @@ const ProductPage = () => {
             <Button
               type="active"
               size="small"
-              ghost
               onClick={() => handleActivate(record.ProductID)}
             >
               Kích hoạt
@@ -207,7 +353,7 @@ const ProductPage = () => {
         <header className="Product-header">
           <Input.Search
             placeholder="Tìm kiếm sản phẩm..."
-            onChange={handleSearchChange} // Kích hoạt tìm kiếm
+            onChange={handleSearchChange}
           />
 
           <div className="delete-section">
@@ -218,7 +364,7 @@ const ProductPage = () => {
               disabled={state.selectedProducts.length === 0}
               onClick={handleDeleteProducts}
             >
-              Xóa
+              Xóa{" "}
               {state.selectedProducts.length > 0
                 ? `(${state.selectedProducts.length})`
                 : ""}
@@ -226,7 +372,7 @@ const ProductPage = () => {
           </div>
           <div className="add-section">
             <Button
-              type="add"
+              type="primary"
               icon={<PlusOutlined />}
               className="add-product"
               onClick={handleCreateProduct}
@@ -247,6 +393,76 @@ const ProductPage = () => {
             },
           }}
         />
+
+        {/*Modal thêm/sửa sản phẩm*/}
+        <Modal
+          title={isEditMode ? "Cập nhật sản phẩm" : "Thêm sản phẩm mới"}
+          open={isModalOpen}
+          onOk={handleCreateOk}
+          onCancel={handleCreateCancel}
+          okText={isEditMode ? "Lưu thay đổi" : "Thêm sản phẩm"}
+          cancelText="Hủy"
+          confirmLoading={loading}
+        >
+          <Form form={form} layout="vertical" name="form_product">
+            <Form.Item
+              name="MaSanPham"
+              label="Mã sản phẩm"
+              rules={[
+                { required: true, message: "Vui lòng nhập Mã sản phẩm!" },
+                {
+                  validator: (_, value) => {
+                    if (isEditMode) return Promise.resolve();
+                    const isDuplicate = data.some(
+                      (item) => item.ProductID === value
+                    );
+                    if (isDuplicate)
+                      return Promise.reject("Mã này đã tồn tại!");
+                    return Promise.resolve();
+                  },
+                },
+              ]}
+            >
+              <Input
+                placeholder="SP01"
+                disabled={isEditMode}
+                style={
+                  isEditMode
+                    ? { color: "#000", backgroundColor: "#f5f5f5" }
+                    : {}
+                }
+              />
+            </Form.Item>
+
+            <Form.Item
+              name="TenSanPham"
+              label="Tên sản phẩm"
+              rules={[
+                { required: true, message: "Vui lòng nhập tên sản phẩm!" },
+              ]}
+            >
+              <Input placeholder="Nhẫn Kim Cương" />
+            </Form.Item>
+
+            <Form.Item
+              name="MaLoaiSanPham"
+              label="Loại sản phẩm"
+              rules={[
+                { required: true, message: "Vui lòng chọn loại sản phẩm!" },
+              ]}
+            >
+              <Select placeholder="Chọn loại sản phẩm" options={categories} />
+            </Form.Item>
+
+            <Form.Item label="Hình ảnh sản phẩm">
+              <Upload {...uploadProps} listType="picture" maxCount={1}>
+                <Button icon={<UploadOutlined />}>
+                  {isEditMode ? "Thay đổi ảnh" : "Thêm ảnh"}
+                </Button>
+              </Upload>
+            </Form.Item>
+          </Form>
+        </Modal>
       </div>
     </div>
   );
