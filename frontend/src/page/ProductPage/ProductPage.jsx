@@ -248,6 +248,7 @@ const ProductPage = () => {
           }}
         />
       </div>
+      <Modal></Modal>
     </div>
   );
 };

@@ -10,19 +10,33 @@ function App() {
   console.log("Danh sách routes:", routes);
   return (
     <Router>
-      <div className="app-container">
-        <Sidebar />
-
-        <div className="main-content">
-          <Header />
-          <Routes>
-            {routes.map((route) => {
-              const PageComponent = route.component;
-              return <Route path={route.path} element={<PageComponent />} />;
-            })}
-          </Routes>
-        </div>
-      </div>
+      <Routes>
+        {routes.map((route, index) => {
+          const PageComponent = route.component;
+          const isShowSidebar = route.isShowSidebar;
+          return (
+            <Route
+              key={index}
+              path={route.path}
+              element={
+                isShowSidebar ? (
+                  <div className="app-container">
+                    <Sidebar />
+                    <div className="main-content">
+                      <Header />
+                      <div className="page-content">
+                        <PageComponent />
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <PageComponent />
+                )
+              }
+            />
+          );
+        })}
+      </Routes>
     </Router>
   );
 }
