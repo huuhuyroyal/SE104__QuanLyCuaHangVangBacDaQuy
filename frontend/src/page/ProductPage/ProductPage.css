@@ -32,9 +32,12 @@
 .ant-btn.ant-btn-active {
   border-color: #1890ff !important;
   color: #1890ff !important;
+  background-color: white;
 }
+
 .ant-btn.ant-btn-active:hover {
   transform: scale(1.05);
+  background-color: white !important;
 }
 .ant-table-tbody > tr.ant-table-row-selected > td {
   background-color: #fff1f0 !important;
@@ -55,4 +58,7 @@
 
 .ant-checkbox-indeterminate .ant-checkbox-inner::after {
   background-color: #a91811 !important;
+}
+.edit-product:hover {
+  cursor: pointer;
 }
