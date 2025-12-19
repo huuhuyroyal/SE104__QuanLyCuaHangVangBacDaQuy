@@ -178,6 +178,12 @@ CREATE TABLE TAIKHOAN (
 );
 
 -- DỮ LIỆU ĐƯỢC KHỞI TẠO BAN ĐẦU
+--Tài khoản
+INSERT INTO TaiKhoan (MaTaiKhoan, TenTaiKhoan, MatKhau, Role) VALUES
+(1, 'admin', '123456', 'admin' ),
+(2, 'thukho', '123456', 'warehouse'),
+(3, 'seller', '123456', 'seller');
+
 -- khách hàng
 INSERT INTO KHACHHANG (MaKH, TenKH, SoDienThoai, DiaChi) VALUES
 ('KH01', N'Nguyễn Văn An', '0909111222', N'Quận 1'),

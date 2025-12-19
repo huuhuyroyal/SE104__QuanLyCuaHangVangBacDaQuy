@@ -142,6 +142,8 @@ const updateProducts = async (req, res) => {
     // LOGIC ẢNH THÔNG MINH
     if (file) {
       data.HinhAnh = file.path;
+    } else if (data.HinhAnh === "") {
+      data.HinhAnh = null;
     } else {
     }
 
