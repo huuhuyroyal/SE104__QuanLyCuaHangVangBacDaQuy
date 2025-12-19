@@ -114,7 +114,11 @@ const createNewProducts = async (req, res) => {
       });
     }
     // xử lý ảnh
-    data.HinhAnh = file ? file.path : null;
+    if (file) {
+      data.HinhAnh = file.path;
+    } else {
+      data.HinhAnh = "#";
+    }
     const response = await createNewProductService(data);
     return res.status(200).json(response);
   } catch (error) {
