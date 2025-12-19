@@ -37,7 +37,10 @@ const Sidebar = () => {
 
       <nav className="menu">
         <ul>
-          <li className={isActive("/")} onClick={() => handleNavigate("/")}>
+          <li
+            className={isActive("/Dashboard")}
+            onClick={() => handleNavigate("/Dashboard")}
+          >
             <img src="/dashboard.svg" alt="" />
             <span href="#">Dashboard</span>
           </li>
