@@ -1,12 +1,26 @@
 import express from "express";
-import productController from "../controllers/productController.js";
+import path from "path";
+import productController, { upload } from "../controllers/productController.js";
 
+const app = express();
 const router = express.Router();
+app.use(express.static("public"));
 
 const initProductRoute = (app) => {
   router.get("/api/products", productController.getProducts);
+  router.get("/api/categories", productController.getAllCategories);
   router.post("/api/products/delete", productController.deleteProducts);
   router.post("/api/products/active", productController.activeProducts);
+  router.post(
+    "/api/products/create",
+    upload.single("HinhAnh"),
+    productController.createNewProducts
+  );
+  router.post(
+    "/api/products/update",
+    upload.single("HinhAnh"),
+    productController.updateProducts
+  );
   return app.use("/", router);
 };
 
