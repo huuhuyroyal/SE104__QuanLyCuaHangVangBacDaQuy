@@ -81,7 +81,6 @@ const ProductPage = () => {
           key: item.MaSanPham,
           ProductName: item.TenSanPham,
           ProductID: item.MaSanPham,
-          CategoryID: item.MaLoaiSanPham,
           category: item.TenLoaiSanPham || "Chưa phân loại",
           stock: item.SoLuongTon,
           price: new Intl.NumberFormat("vi-VN", {
@@ -198,22 +197,13 @@ const ProductPage = () => {
       formData.append("MaLoaiSanPham", values.MaLoaiSanPham);
       // Xử lý khi upload ảnh
       if (fileList.length > 0) {
-        const fileItem = fileList[0];
-        if (fileItem instanceof File) {
-          // file mới upload
-          formData.append("HinhAnh", fileItem);
-        } else if (fileItem.originFileObj) {
-          // file bọc bởi Antd
-          formData.append("HinhAnh", fileItem.originFileObj);
-        } else if (fileItem.url && isEditMode) {
-          // Đây là link ảnh cũ
-          formData.append("HinhAnh", fileItem.url);
-        } else {
-          // Không có ảnh hợp lệ
-          formData.append("HinhAnh", "");
+        if (fileList[0].originFileObj) {
+          // user upload ảnh mới
+          formData.append("HinhAnh", fileList[0].originFileObj);
+        } else if (fileList[0].url) {
+          // user giữ nguyên ảnh cũ
+          formData.append("HinhAnh", fileList[0].url);
         }
-      } else {
-        formData.append("HinhAnh", "");
       }
 
       let res;
@@ -248,7 +238,7 @@ const ProductPage = () => {
     form.setFieldsValue({
       MaSanPham: record.ProductID,
       TenSanPham: record.ProductName,
-      MaLoaiSanPham: record.CategoryID,
+      MaLoaiSanPham: record.category,
     });
 
     // Xử lý hiển thị ảnh cũ
