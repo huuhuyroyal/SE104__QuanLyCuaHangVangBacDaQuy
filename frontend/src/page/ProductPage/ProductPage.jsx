@@ -392,6 +392,9 @@ const ProductPage = () => {
               setState({ selectedProducts: selectedRowKeys });
             },
           }}
+          locale={{
+            emptyText: "Không có sản phẩm nào giống với từ khóa tìm kiếm",
+          }}
         />
 
         {/*Modal thêm/sửa sản phẩm*/}
