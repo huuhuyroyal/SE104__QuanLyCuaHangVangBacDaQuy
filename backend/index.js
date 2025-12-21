@@ -4,6 +4,8 @@ import { connectDB } from "./src/config/connectDB.js";
 import initProductRoute from "./src/routes/productRoute.js";
 import initUserRoute from "./src/routes/userRoute.js";
 import initDashboardRoute from "./src/routes/dashboardRoute.js";
+// --- IMPORT NEW ROUTE ---
+import initProductTypeRoute from "./src/routes/productTypeRoute.js"; 
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -19,9 +21,11 @@ app.use(express.static("public"));
 initProductRoute(app);
 initUserRoute(app);
 initDashboardRoute(app);
+initProductTypeRoute(app);
+
 // Kiểm tra kết nối DB
 connectDB();
-// Chạy server
+
 app.listen(PORT, () => {
   console.log(`Server đang chạy ở port http://localhost:${PORT}`);
 });
