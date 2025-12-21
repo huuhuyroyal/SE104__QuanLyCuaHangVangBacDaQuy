@@ -6,6 +6,8 @@ import initUserRoute from "./src/routes/userRoute.js";
 import initDashboardRoute from "./src/routes/dashboardRoute.js";
 // --- IMPORT NEW ROUTE ---
 import initProductTypeRoute from "./src/routes/productTypeRoute.js"; 
+import initUnitRoute from "./src/routes/unitRoute.js";
+
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -22,6 +24,8 @@ initProductRoute(app);
 initUserRoute(app);
 initDashboardRoute(app);
 initProductTypeRoute(app);
+initUnitRoute(app);
+
 
 // Kiểm tra kết nối DB
 connectDB();
