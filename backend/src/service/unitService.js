@@ -1,16 +1,3 @@
-<<<<<<< HEAD
-// backend/src/service/unitService.js
-import UnitModel from "../models/unitModel.js";
-
-export const getAllUnitsService = async () => {
-  try {
-    const data = await UnitModel.getAll();
-    return { errCode: 0, data };
-  } catch (error) {
-    return { errCode: 1, data: [] };
-  }
-};
-=======
 import unitModel from "../models/unitModel.js";
 
 const unitService = {
@@ -200,4 +187,3 @@ const unitService = {
 };
 
 export default unitService;
->>>>>>> ad18d8c40aa5d7681666ad87b3174ae70b390e1c

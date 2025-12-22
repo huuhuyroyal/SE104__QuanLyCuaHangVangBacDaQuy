@@ -1,12 +1,5 @@
 import axios from "./axios";
 
-<<<<<<< HEAD
-const getAllUnits = () => {
-  return axios.get("/api/units");
-};
-
-export default { getAllUnits };
-=======
 const unitService = {
   // Lấy tất cả đơn vị tính
   getAllUnits: async () => {
@@ -72,4 +65,3 @@ const unitService = {
 };
 
 export default unitService;
->>>>>>> ad18d8c40aa5d7681666ad87b3174ae70b390e1c

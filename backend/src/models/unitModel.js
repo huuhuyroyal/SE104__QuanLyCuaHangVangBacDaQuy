@@ -1,18 +1,3 @@
-<<<<<<< HEAD
-// backend/src/models/unitModel.js
-import { connection } from "../config/connectDB.js";
-
-const UnitModel = {
-  getAll: async () => {
-    const [rows] = await connection.query(
-      "SELECT MaDVT, TenDVT FROM donvitinh"
-    );
-    return rows;
-  },
-};
-
-export default UnitModel;
-=======
 import { connection } from "../config/connectDB.js";
 
 const unitModel = {
@@ -97,4 +82,3 @@ const unitModel = {
 };
 
 export default unitModel;
->>>>>>> ad18d8c40aa5d7681666ad87b3174ae70b390e1c
