@@ -131,7 +131,7 @@ const ServiceType = () => {
   // Table Columns Configuration
   const columns = [
     { title: "Mã loại dịch vụ", dataIndex: "MaLoaiDV", width: "15%" },
-    { title: "Tên loại dịch vụ", dataIndex: "TenLoaiDV", width: "30%", render: (text) => <b>{text}</b> },
+    { title: "Tên loại dịch vụ", dataIndex: "TenLoaiDV", width: "30%" },
     { 
       title: "Đơn giá dịch vụ", 
       dataIndex: "DonGiaDV", 
