@@ -1,73 +1,57 @@
 import React, { useState } from "react";
-import { Table, DatePicker, Button, message, Input } from "antd";
+import { Table, DatePicker, Button, message } from "antd";
 import { FileTextOutlined } from "@ant-design/icons";
-import dayjs from "dayjs";
+import InventoryReportService from "../../services/InventoryReport";
 import "./InventoryReport.css";
 
 const InventoryReport = () => {
-  // 1. STATE QUẢN LÝ
-  const [selectedMonth, setSelectedMonth] = useState(null); // Lưu tháng đang chọn
-  const [reportData, setReportData] = useState([]); // Dữ liệu hiển thị trên bảng
-  const [loading, setLoading] = useState(false); // Hiệu ứng loading
+  // State
+  const [selectedMonth, setSelectedMonth] = useState(null);
+  const [reportData, setReportData] = useState([]);
+  const [loading, setLoading] = useState(false);
 
-  // Dữ liệu giả
-  const initialData = [
-    {
-      key: "1",
-      ProductName: "Nhẫn kim cương",
-      ProductID: "ID001",
-      first_stock: "100",
-      final_stock: "50",
-      buy: "30",
-      DVT: "Cái",
-    },
-    {
-      key: "2",
-      ProductName: "Dây chuyền bạc",
-      ProductID: "ID002",
-      first_stock: "50",
-      final_stock: "40",
-      buy: "50",
-      DVT: "Sợi",
-    },
-    {
-      key: "3",
-      ProductName: "Bông tai đá",
-      ProductID: "ID003",
-      first_stock: "20",
-      final_stock: "50",
-      buy: "60",
-      DVT: "Cặp",
-    },
-    {
-      key: "4",
-      ProductName: "Vàng SJC",
-      ProductID: "VSJ004",
-      first_stock: "20",
-      final_stock: "150",
-      buy: "200",
-      DVT: "Miếng",
-    },
-  ];
-
-  // Hàm tạo báo cáo
-  const handleCreateReport = () => {
+  // call api
+  const handleCreateReport = async () => {
     if (!selectedMonth) {
       message.error("Vui lòng chọn Tháng/Năm để lập báo cáo!");
       return;
     }
-    setLoading(true);
 
-    // thiết lập thời gian load dữ liệu là 1s, sau khi có backend thì update lại
-    setTimeout(() => {
-      const monthString = selectedMonth.format("MM/YYYY");
-      message.success(`Đã lập báo cáo cho tháng ${monthString}`);
-      setReportData(initialData);
+    setLoading(true);
+    try {
+      const month = selectedMonth.month() + 1;
+      const year = selectedMonth.year();
+
+      // Gọi API qua Service
+      const response = await InventoryReportService.getReport(month, year);
+      console.log("Response Report:", response);
+
+      if (response && response.success) {
+        const rawItems = response.data.items;
+
+        // Mapping dữ liệu
+        const mappedData = rawItems.map((item) => ({
+          key: item.maSanPham,
+          ProductName: item.tenSanPham,
+          ProductID: item.maSanPham,
+          first_stock: item.tonDau,
+          buy: item.nhap,
+          final_stock: item.tonCuoi,
+          DVT: item.dvt,
+        }));
+
+        setReportData(mappedData);
+        message.success(`Đã lập báo cáo cho tháng ${month}/${year}`);
+      }
+    } catch (error) {
+      console.error("Lỗi lấy báo cáo:", error);
+      message.error("Không thể lấy dữ liệu. Kiểm tra server!");
+    } finally {
       setLoading(false);
-    }, 500);
+    }
   };
 
-  // Cấu hình bảng
+  // cấu hình bảng
   const columns = [
     {
       title: "Sản phẩm",
@@ -114,16 +98,17 @@ const InventoryReport = () => {
           type="primary"
           icon={<FileTextOutlined />}
           onClick={handleCreateReport}
+          loading={loading}
         >
           Lập báo cáo
         </Button>
       </div>
 
-      {/*Table*/}
+      {/* Table */}
       <Table
         columns={columns}
         dataSource={reportData}
-        pagination={{ pageSize: 5 }}
+        pagination={{ pageSize: 10 }}
         loading={loading}
         bordered
         locale={{

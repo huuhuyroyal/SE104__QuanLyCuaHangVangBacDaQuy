@@ -6,7 +6,7 @@ const handleLogin = async (req, res) => {
     const response = await authService.login(TenTaiKhoan, MatKhau);
 
     const { statusCode, ...data } = response;
-    return res.status(statusCode).json(data);
+    return res.status(200).json(data);
   } catch (error) {
     console.error(error);
     return res.status(500).json({

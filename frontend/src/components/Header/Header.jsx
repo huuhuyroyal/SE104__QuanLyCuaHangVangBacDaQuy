@@ -10,7 +10,6 @@ const Header = () => {
   return (
     <div className="Heading">
       <h1>{title}</h1>
-      <img src="#" alt="avt" />
     </div>
   );
 };
