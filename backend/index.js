@@ -1,13 +1,23 @@
 import express from "express";
 import cors from "cors";
 import { connectDB } from "./src/config/connectDB.js";
+import authMiddleware from "./src/middleware/authMiddleware.js";
 import initProductRoute from "./src/routes/productRoute.js";
 import initUserRoute from "./src/routes/userRoute.js";
 import initDashboardRoute from "./src/routes/dashboardRoute.js";
+<<<<<<< HEAD
 // --- IMPORT NEW ROUTE ---
 import initProductTypeRoute from "./src/routes/productTypeRoute.js"; 
 import initUnitRoute from "./src/routes/unitRoute.js";
 
+=======
+import initUnitRoute from "./src/routes/unitRoute.js";
+import initInvoiceRoute from "./src/routes/invoiceRoute.js";
+import initCustomerRoute from "./src/routes/customerRoute.js";
+import initPurchaseRoute from "./src/routes/purchaseRoute.js";
+import initSupplierRoute from "./src/routes/supplierRoute.js";
+import initReportRoute from "./src/routes/reportRoute.js";
+>>>>>>> ad18d8c40aa5d7681666ad87b3174ae70b390e1c
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -19,14 +29,25 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static("public"));
 
+initUserRoute(app);
+app.use(authMiddleware.verifyToken);
+
 // Khởi tạo các Route
 initProductRoute(app);
-initUserRoute(app);
 initDashboardRoute(app);
+<<<<<<< HEAD
 initProductTypeRoute(app);
 initUnitRoute(app);
 
 
+=======
+initUnitRoute(app);
+initInvoiceRoute(app);
+initCustomerRoute(app);
+initPurchaseRoute(app);
+initSupplierRoute(app);
+initReportRoute(app);
+>>>>>>> ad18d8c40aa5d7681666ad87b3174ae70b390e1c
 // Kiểm tra kết nối DB
 connectDB();
 
