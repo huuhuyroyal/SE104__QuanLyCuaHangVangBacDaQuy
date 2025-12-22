@@ -178,8 +178,8 @@ CREATE TABLE TAIKHOAN (
 );
 
 -- DỮ LIỆU ĐƯỢC KHỞI TẠO BAN ĐẦU
---Tài khoản
-INSERT INTO TaiKhoan (MaTaiKhoan, TenTaiKhoan, MatKhau, Role) VALUES
+-- Tài khoản
+INSERT INTO TAIKHOAN (MaTaiKhoan, TenTaiKhoan, MatKhau, Role) VALUES
 (1, 'admin', '123456', 'admin' ),
 (2, 'thukho', '123456', 'warehouse'),
 (3, 'banhang', '123456', 'seller');

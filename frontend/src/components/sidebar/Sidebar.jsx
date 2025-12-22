@@ -66,8 +66,8 @@ const Sidebar = () => {
             <span href="#">Quản lý đơn vị tính</span>
           </li>
           <li
-            className={isActive("/SaleOrder")}
-            onClick={() => handleNavigate("/SaleOrder")}
+            className={isActive("/SalesInvoice")}
+            onClick={() => handleNavigate("/SalesInvoice")}
           >
             <img src="/ql_phieu_ban_hang.svg" alt="" />
             <span href="#">Quản lý phiếu bán hàng</span>

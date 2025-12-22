@@ -3,6 +3,8 @@ import ProductPage from "../page/ProductPage/ProductPage";
 import InventionReport from "../page/InventoryReport/InventoryReport";
 import Unit from "../page/Unit/Unit";
 import LoginPage from "../page/Login/LoginPage";
+import SalesInvoice from "../page/SalesInvoice/SalesInvoice";
+import PurchaseInvoice from "../page/PurchaseInvoice/PurchaseInvoice";
 import Title from "antd/es/skeleton/Title";
 
 export const routes = [
@@ -28,6 +30,18 @@ export const routes = [
     path: "/InventoryReport",
     Title: "Báo cáo tồn kho",
     component: InventionReport,
+    isShowSidebar: true,
+  },
+  {
+    path: "/SalesInvoice",
+    Title: "Quản lý phiếu bán hàng",
+    component: SalesInvoice,
+    isShowSidebar: true,
+  },
+  {
+    path: "/PurchaseOrder",
+    Title: "Quản lý phiếu mua hàng",
+    component: PurchaseInvoice,
     isShowSidebar: true,
   },
   {

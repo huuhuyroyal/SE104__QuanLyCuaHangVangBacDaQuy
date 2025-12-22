@@ -5,6 +5,11 @@ import authMiddleware from "./src/middleware/authMiddleware.js";
 import initProductRoute from "./src/routes/productRoute.js";
 import initUserRoute from "./src/routes/userRoute.js";
 import initDashboardRoute from "./src/routes/dashboardRoute.js";
+import initUnitRoute from "./src/routes/unitRoute.js";
+import initInvoiceRoute from "./src/routes/invoiceRoute.js";
+import initCustomerRoute from "./src/routes/customerRoute.js";
+import initPurchaseRoute from "./src/routes/purchaseRoute.js";
+import initSupplierRoute from "./src/routes/supplierRoute.js";
 import initReportRoute from "./src/routes/reportRoute.js";
 import dotenv from "dotenv";
 
@@ -23,6 +28,11 @@ app.use(authMiddleware.verifyToken);
 // Khởi tạo các Route
 initProductRoute(app);
 initDashboardRoute(app);
+initUnitRoute(app);
+initInvoiceRoute(app);
+initCustomerRoute(app);
+initPurchaseRoute(app);
+initSupplierRoute(app);
 initReportRoute(app);
 // Kiểm tra kết nối DB
 connectDB();

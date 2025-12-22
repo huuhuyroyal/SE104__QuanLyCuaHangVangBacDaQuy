@@ -1,0 +1,17 @@
+.sales-invoice-page .items-grid{margin-top:8px}
+.sales-invoice-page .item-row{display:flex; align-items:center; gap:8px; margin-top:8px}
+
+.main .ant-table-tbody > tr {
+	cursor: pointer;
+}
+
+.item-card{
+	display:flex; gap:12px; padding:12px; background:#fff; border-radius:8px; margin-top:8px; align-items:center; box-shadow: 0 4px 10px rgba(0,0,0,0.04);
+}
+.item-card .item-left img{width:64px; height:64px; object-fit:cover; border-radius:6px}
+.item-body{flex:1}
+.item-title{font-weight:600}
+.item-meta{color:#666; font-size:13px}
+.item-actions{margin-top:8px; display:flex; align-items:center; gap:8px}
+
+.products-modal img{width:48px;height:48px;object-fit:cover;border-radius:6px}
