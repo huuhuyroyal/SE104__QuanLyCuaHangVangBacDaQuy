@@ -15,7 +15,7 @@ const LoginPage = () => {
       const res = await handleLoginApi(values.username, values.password);
       if (res && res.errCode === 0) {
         message.success("Đăng nhập thành công!");
-        localStorage.setItem("token", res.token);
+        localStorage.setItem("accessToken", res.token);
         localStorage.setItem("user", JSON.stringify(res.user));
         const role = res.user.Role;
 
