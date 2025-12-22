@@ -24,9 +24,10 @@ import getAllProductsService, {
   getAllCategoriesService,
   updateProductService,
 } from "../../services/productService";
+import { checkActionPermission } from "../../utils/checkRole";
 
 const ProductPage = () => {
-  // --- KHỞI TẠO STATE ---
+  // khởi tạo state
   const [data, setData] = useState([]); // Khởi tạo mảng rỗng để tránh lỗi
   const [filteredData, setFilteredData] = useState([]);
   const [searchText, setSearchText] = useState("");
@@ -39,7 +40,10 @@ const ProductPage = () => {
 
   const [categories, setCategories] = useState([]);
   const [isEditMode, setIsEditMode] = useState(false);
-  // LOAD DỮ LIỆU BAN ĐẦU
+  // Lấy thông tin user để check quyền
+  const user = JSON.parse(localStorage.getItem("user"));
+  const role = user?.Role;
+  // load data lần đầu
   useEffect(() => {
     const initPage = async () => {
       await fetchCategories();
@@ -82,6 +86,7 @@ const ProductPage = () => {
           ProductName: item.TenSanPham,
           ProductID: item.MaSanPham,
           category: item.TenLoaiSanPham || "Chưa phân loại",
+          categoryId: item.MaLoaiSanPham,
           stock: item.SoLuongTon,
           price: new Intl.NumberFormat("vi-VN", {
             style: "currency",
@@ -103,6 +108,7 @@ const ProductPage = () => {
 
   //XỬ LÝ XÓA
   const handleDeleteProducts = () => {
+    if (!checkActionPermission(["admin", "warehouse"])) return;
     if (state.selectedProducts.length === 0) return;
     const selectedItems = data.filter((item) =>
       state.selectedProducts.includes(item.ProductID)
@@ -151,7 +157,6 @@ const ProductPage = () => {
           }
         } catch (error) {
           console.error(error);
-          message.error("Có lỗi xảy ra khi xóa!");
         } finally {
           setLoading(false);
         }
@@ -161,6 +166,7 @@ const ProductPage = () => {
 
   //XỬ LÝ KÍCH HOẠT LẠI
   const handleActivate = async (id) => {
+    if (!checkActionPermission(["admin", "warehouse"])) return;
     try {
       setLoading(true);
       const res = await activateProductService(id);
@@ -172,7 +178,6 @@ const ProductPage = () => {
       }
     } catch (error) {
       console.error(error);
-      message.error("Lỗi khi kích hoạt");
     } finally {
       setLoading(false);
     }
@@ -180,6 +185,7 @@ const ProductPage = () => {
 
   // XỬ LÝ THÊM MỚI
   const handleCreateProduct = () => {
+    if (!checkActionPermission(["admin", "warehouse"])) return;
     setIsEditMode(false);
     setIsModalOpen(true);
     form.resetFields();
@@ -232,13 +238,14 @@ const ProductPage = () => {
   };
   // Hàm xử lý edit
   const handleEditProduct = (record) => {
+    if (!checkActionPermission(["admin", "warehouse"])) return;
     setIsEditMode(true);
     setIsModalOpen(true);
     // Đổ dữ liệu cũ vào Form
     form.setFieldsValue({
       MaSanPham: record.ProductID,
       TenSanPham: record.ProductName,
-      MaLoaiSanPham: record.category,
+      MaLoaiSanPham: record.categoryId,
     });
 
     // Xử lý hiển thị ảnh cũ
@@ -391,6 +398,9 @@ const ProductPage = () => {
             onChange: (selectedRowKeys) => {
               setState({ selectedProducts: selectedRowKeys });
             },
+          }}
+          locale={{
+            emptyText: "Không có sản phẩm nào giống với từ khóa tìm kiếm",
           }}
         />
 
