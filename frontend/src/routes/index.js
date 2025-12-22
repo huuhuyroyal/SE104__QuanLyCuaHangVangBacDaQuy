@@ -6,6 +6,7 @@ import LoginPage from "../page/Login/LoginPage";
 import ProductType from "../page/ProductType/ProductType";
 import SalesInvoice from "../page/SalesInvoice/SalesInvoice";
 import PurchaseInvoice from "../page/PurchaseInvoice/PurchaseInvoice";
+import ServiceType from "../page/ServiceType/ServiceType";
 import Title from "antd/es/skeleton/Title";
 
 export const routes = [
@@ -56,5 +57,11 @@ export const routes = [
   Title: "Quản lý loại sản phẩm",
   component: ProductType,
   isShowSidebar: true,
-},
+  },
+  {
+    path: "/ServiceType",
+    Title: "Quản lý loại dịch vụ",
+    component: ServiceType,
+    isShowSidebar: true,
+  },
 ];
