@@ -26,6 +26,7 @@ const SalesInvoice = () => {
   const [customerTempId, setCustomerTempId] = useState("");
   const [customersList, setCustomersList] = useState([]);
   const [selectedCustomerKey, setSelectedCustomerKey] = useState(null);
+  const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [detailModalVisible, setDetailModalVisible] = useState(false);
   const [detailInvoice, setDetailInvoice] = useState(null);
   const [detailItems, setDetailItems] = useState([]);
@@ -76,6 +77,8 @@ const SalesInvoice = () => {
     setEditing(null);
     form.resetFields();
     setItems([]);
+    setSelectedCustomer(null);
+    setSelectedCustomerKey(null);
     setDuplicateInvoice(false);
     // set NgayLap default to today's date (YYYY-MM-DD)
     form.setFieldsValue({ NgayLap: toDateYMD(new Date()) });
@@ -104,6 +107,8 @@ const SalesInvoice = () => {
         // set NgayLap as date-only (YYYY-MM-DD) for the input
         const ngay = invoice && invoice.NgayLap ? toDateYMD(invoice.NgayLap) : toDateYMD(new Date());
         form.setFieldsValue({ SoPhieuBH: invoice.SoPhieuBH, NgayLap: ngay, MaKH: invoice.MaKH, TenKH: invoice.TenKH, TongTien: invoice.TongTien });
+        setSelectedCustomer(invoice.MaKH ? { MaKH: invoice.MaKH, TenKH: invoice.TenKH } : null);
+        setSelectedCustomerKey(invoice.MaKH || null);
         // augment items with product stock and image/pricing if available
         let augmented = items || [];
         try {
@@ -443,41 +448,58 @@ const SalesInvoice = () => {
           </Row>
 
           <Row gutter={8} style={{ marginTop: 8 }}>
-            {editing ? (
-              <>
-                <Col span={8}>
-                  <Form.Item name="MaKH" label="Mã khách hàng">
-                    <Input disabled />
-                  </Form.Item>
-                </Col>
-                <Col span={16}>
-                  <Form.Item name="TenKH" label="Tên khách hàng">
-                    <Input disabled />
-                  </Form.Item>
-                </Col>
-              </>
-            ) : (
-              <Col span={24}>
-                <Form.Item label="Khách hàng">
-                  <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-                    <Button onClick={async () => {
-                      const currentName = form.getFieldValue('TenKH') || '';
-                      const currentId = form.getFieldValue('MaKH') || '';
-                      setCustomerTempName(currentName);
-                      setCustomerTempId(currentId);
-                      try {
-                        const res = await getAllCustomersService();
-                        if (res && res.data) setCustomersList(res.data);
-                      } catch (err) {
-                        console.error('Failed to load customers', err);
-                      }
-                      setCustomerModalVisible(true);
-                    }}>Thêm khách hàng</Button>
-                    <div style={{ minWidth: 160 }}>{form.getFieldValue('TenKH') || form.getFieldValue('MaKH') || "(Chưa chọn)"}</div>
-                  </div>
-                </Form.Item>
-              </Col>
-            )}
+            <Col span={24} style={{ marginBottom: 8 }}>
+              <Button onClick={async () => {
+                const currentName = form.getFieldValue('TenKH') || '';
+                const currentId = form.getFieldValue('MaKH') || '';
+                setCustomerTempName(currentName);
+                setCustomerTempId(currentId);
+                setSelectedCustomerKey(currentId || null);
+                try {
+                  const res = await getAllCustomersService();
+                  if (res && res.data) setCustomersList(res.data);
+                } catch (err) {
+                  console.error('Failed to load customers', err);
+                }
+                setCustomerModalVisible(true);
+              }}>
+                Thêm khách hàng
+              </Button>
+            </Col>
+            <Col span={24}>
+              <Form.Item name="MaKH" style={{ display: 'none' }}>
+                <Input />
+              </Form.Item>
+              <Form.Item name="TenKH" style={{ display: 'none' }}>
+                <Input />
+              </Form.Item>
+              <Table
+                dataSource={selectedCustomer ? [{ key: selectedCustomer.MaKH || 'selected', ...selectedCustomer }] : []}
+                pagination={false}
+                columns={[
+                  { title: 'Mã KH', dataIndex: 'MaKH', key: 'MaKH' },
+                  { title: 'Tên khách hàng', dataIndex: 'TenKH', key: 'TenKH' },
+                  {
+                    title: 'Thao tác',
+                    key: 'action',
+                    render: () => (
+                      <Button
+                        danger
+                        size="small"
+                        onClick={() => {
+                          form.setFieldsValue({ MaKH: '', TenKH: '' });
+                          setSelectedCustomer(null);
+                          setSelectedCustomerKey(null);
+                        }}
+                        disabled={!selectedCustomer}
+                      >
+                        Xóa
+                      </Button>
+                    ),
+                  },
+                ]}
+              />
+            </Col>
           </Row>
 
           <div className="items-section">
@@ -570,9 +592,15 @@ const SalesInvoice = () => {
         // if a customer was selected from list, use it; otherwise use typed values
         if (selectedCustomerKey) {
           const c = customersList.find(cs => cs.MaKH === selectedCustomerKey);
-          if (c) form.setFieldsValue({ MaKH: c.MaKH, TenKH: c.TenKH });
+          if (c) {
+            form.setFieldsValue({ MaKH: c.MaKH, TenKH: c.TenKH });
+            setSelectedCustomer({ MaKH: c.MaKH, TenKH: c.TenKH });
+          }
         } else {
           form.setFieldsValue({ MaKH: customerTempId, TenKH: customerTempName });
+          if (customerTempId || customerTempName) {
+            setSelectedCustomer({ MaKH: customerTempId, TenKH: customerTempName });
+          }
         }
         setCustomerModalVisible(false);
         setSelectedCustomerKey(null);

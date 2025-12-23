@@ -1,0 +1,80 @@
+.main {
+  padding: 28px;
+  background: #f6f7fb;
+  min-height: calc(100vh - 70px);
+}
+
+.Supplier-header {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 22px;
+  background: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 6px 18px rgba(22, 27, 40, 0.06);
+  margin-bottom: 18px;
+}
+
+.add-section {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.add-supplier {
+  background: linear-gradient(180deg, #b82b20, #8d1f18);
+  border: none;
+  color: #fff;
+  padding: 6px 14px;
+  border-radius: 8px;
+  box-shadow: 0 6px 12px rgba(184, 43, 32, 0.16);
+}
+
+.ant-table {
+  background: #fff;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 6px 18px rgba(22, 27, 40, 0.04);
+}
+
+.ant-table-thead > tr > th {
+  background: #fafafa;
+  font-weight: 600;
+}
+
+.ant-table-tbody > tr > td {
+  vertical-align: middle;
+}
+
+.ant-modal,
+.ant-modal-content {
+  border-radius: 12px;
+}
+
+.ant-form-item-label > label {
+  font-weight: 600;
+}
+
+.ant-btn[danger] {
+  background: #ff4d4f;
+  border: none;
+  color: #fff;
+}
+
+.ant-btn[danger]:hover {
+  opacity: 0.95;
+}
+
+@media (max-width: 900px) {
+  .Supplier-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .Supplier-header .ant-input {
+    width: 100%;
+    max-width: 100%;
+  }
+}

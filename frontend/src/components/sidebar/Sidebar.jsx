@@ -80,6 +80,13 @@ const Sidebar = () => {
             <span href="#">Quản lý phiếu mua hàng</span>
           </li>
           <li
+            className={isActive("/Supplier")}
+            onClick={() => handleNavigate("/Supplier")}
+          >
+            <img src="/qlkh.svg" alt="" />
+            <span href="#">Quản lý nhà cung cấp</span>
+          </li>
+          <li
             className={isActive("/ProductType")}
             onClick={() => handleNavigate("/ProductType")}
           >
