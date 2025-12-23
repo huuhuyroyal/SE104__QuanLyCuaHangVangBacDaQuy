@@ -15,6 +15,7 @@ import initCustomerRoute from "./src/routes/customerRoute.js";
 import initPurchaseRoute from "./src/routes/purchaseRoute.js";
 import initSupplierRoute from "./src/routes/supplierRoute.js";
 import initReportRoute from "./src/routes/reportRoute.js";
+import initServiceTicketRoute from "./src/routes/serviceTicketRoute.js";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -33,6 +34,7 @@ app.use(authMiddleware.verifyToken);
 initProductRoute(app);
 initDashboardRoute(app);
 initProductTypeRoute(app);
+initServiceTicketRoute(app);
 initUnitRoute(app);
 initServiceTypeRoute(app);
 

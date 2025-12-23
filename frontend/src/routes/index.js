@@ -7,6 +7,7 @@ import ProductType from "../page/ProductType/ProductType";
 import SalesInvoice from "../page/SalesInvoice/SalesInvoice";
 import PurchaseInvoice from "../page/PurchaseInvoice/PurchaseInvoice";
 import ServiceType from "../page/ServiceType/ServiceType";
+import ServiceTicket from "../page/ServiceTicket/ServiceTicket";
 import Title from "antd/es/skeleton/Title";
 
 export const routes = [
@@ -62,6 +63,12 @@ export const routes = [
     path: "/ServiceType",
     Title: "Quản lý loại dịch vụ",
     component: ServiceType,
+    isShowSidebar: true,
+  },
+  {
+    path: "/ServiceTicket",
+    Title: "Quản lý phiếu dịch vụ",
+    component: ServiceTicket,
     isShowSidebar: true,
   },
 ];
