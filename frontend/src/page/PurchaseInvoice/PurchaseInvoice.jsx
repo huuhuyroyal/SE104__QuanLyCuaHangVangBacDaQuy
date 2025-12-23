@@ -100,6 +100,9 @@ const PurchaseInvoice = () => {
   };
 
   const openCreate = () => {
+    if (!checkActionPermission(["warehouse"], false)) {
+      return message.error("Liên hệ với Thủ kho để tạo phiếu mua hàng");
+    }
     setEditing(null);
     setItems([]);
     form.resetFields();
@@ -109,6 +112,9 @@ const PurchaseInvoice = () => {
   };
 
   const openEdit = async (record) => {
+    if (!checkActionPermission(["warehouse"], false)) {
+      return message.error("Liên hệ với Thủ kho để sửa phiếu mua hàng");
+    }
     try {
       const res = await getPurchaseByIdService(record.SoPhieuMH);
       if (res && res.data) {
@@ -281,7 +287,7 @@ const PurchaseInvoice = () => {
 
   const showBulkDeleteConfirm = () => {
     if (!checkActionPermission(["admin"], false)) {
-      return message.error("Liên hệ với admin để xóa phiếu mua");
+      return message.error("Liên hệ với admin để xóa phiếu mua hàng");
     }
     Modal.confirm({
       title: "Xác nhận xóa",

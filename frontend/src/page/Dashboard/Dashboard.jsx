@@ -35,7 +35,7 @@ const COLORS = [
 const Dashboard = () => {
   const [stats, setStats] = useState({
     products: 0,
-    categories: 0,
+    servicestypes: 0,
     customers: 0,
     orders: 0,
   });
@@ -143,10 +143,11 @@ const Dashboard = () => {
         </div>
         <div className="card">
           <div className="card-inner">
-            <h3>LOẠI SẢN PHẨM</h3>
+            <h3>LOẠI DỊCH VỤ</h3>
             <BsFillGrid3X3GapFill className="card_icon" />
           </div>
-          <h1>{stats.categories}</h1>
+
+          <h1>{stats.servicestypes}</h1>
         </div>
         <div className="card">
           <div className="card-inner">

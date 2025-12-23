@@ -3,6 +3,7 @@ import { Table, DatePicker, Button, message } from "antd";
 import { FileTextOutlined } from "@ant-design/icons";
 import InventoryReportService from "../../services/InventoryReport";
 import "./InventoryReport.css";
+import { checkActionPermission } from "../../utils/checkRole";
 
 const InventoryReport = () => {
   // State
@@ -12,6 +13,7 @@ const InventoryReport = () => {
 
   // call api
   const handleCreateReport = async () => {
+    if (!checkActionPermission(["admin", "warehouse"])) return;
     if (!selectedMonth) {
       message.error("Vui lòng chọn Tháng/Năm để lập báo cáo!");
       return;
