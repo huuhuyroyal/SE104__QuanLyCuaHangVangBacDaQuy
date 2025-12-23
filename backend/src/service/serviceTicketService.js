@@ -24,10 +24,16 @@ export const createServiceTicket = async (data) => {
     await ServiceTicketModel.create(data);
     return { errCode: 0, message: "Tạo phiếu dịch vụ thành công!" };
   } catch (error) {
+    // Handle specific errors
     if (error.code === 'DUPLICATE_ID') {
         return { errCode: 2, message: "Mã phiếu đã tồn tại!" };
     }
-    return { errCode: 1, message: "Lỗi tạo phiếu" };
+    if (error.message === 'NO_ITEMS') {
+        return { errCode: 1, message: "Phiếu dịch vụ phải có ít nhất một dịch vụ!" };
+    }
+    
+    console.error("Create Ticket Error:", error);
+    return { errCode: 1, message: "Lỗi tạo phiếu: " + (error.message || "Lỗi Server") };
   }
 };
 

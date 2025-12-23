@@ -55,7 +55,7 @@ const ServiceTicket = () => {
     // Calculate totals based on items
     const calculateTotals = (currentItems) => {
         const total = currentItems.reduce((sum, item) => sum + (item.ThanhTien || 0), 0);
-        const prepaid = currentItems.reduce((sum, item) => sum + (item.ThanhTienTraTruoc || 0), 0);
+        const prepaid = currentItems.reduce((sum, item) => sum + (item.TraTruoc || 0), 0);
         return {
             TongTien: total,
             TongTienTraTruoc: prepaid,
@@ -70,7 +70,7 @@ const ServiceTicket = () => {
             SoLuong: 1, 
             DonGiaDuocTinh: 0, 
             ThanhTien: 0, 
-            ThanhTienTraTruoc: 0 
+            TraTruoc: 0 
         }]);
     };
 
@@ -93,7 +93,7 @@ const ServiceTicket = () => {
             // Calculate prepaid based on percentage if available
             const type = serviceTypes.find(t => t.MaLoaiDV === item.MaLoaiDV);
             const percent = type ? type.PhanTramTraTruoc : 0;
-            item.ThanhTienTraTruoc = (item.ThanhTien * percent) / 100;
+            item.TraTruoc = (item.ThanhTien * percent) / 100;
         }
 
         newItems[index] = item;
@@ -113,29 +113,50 @@ const ServiceTicket = () => {
 
     const handleSave = async () => {
         try {
-            const values = await form.validateFields();
-            const payload = {
-                ...values,
-                items: items,
-                NgayLap: values.NgayLap ? values.NgayLap + " 00:00:00" : new Date(),
-                TinhTrang: "Đang xử lý"
-            };
+        const values = await form.validateFields();
 
-            const res = await ticketService.createServiceTicket(payload);
-            if (res.errCode === 0) {
-                message.success(res.message);
-                setIsCreateOpen(false);
-                form.resetFields();
-                setItems([]);
-                fetchData();
-            } else {
-                message.error(res.message);
-            }
-        } catch (error) {
-            console.error(error);
+        if (items.length === 0) {
+            message.error("Vui lòng thêm ít nhất một dịch vụ vào danh sách!");
+        return;
         }
-    };
 
+        const hasInvalidItem = items.some(
+            (item) => !item.MaLoaiDV || !item.SoLuong || item.SoLuong < 1
+        );
+
+        if (hasInvalidItem) {
+            message.error("Vui lòng chọn 'Loại dịch vụ' và nhập 'Số lượng' cho tất cả các dòng!");
+        return;
+        }
+
+        const payload = {
+            ...values,
+            items: items,
+            NgayLap: values.NgayLap 
+            ? new Date(values.NgayLap).toISOString().slice(0, 19).replace('T', ' ') 
+            : new Date().toISOString().slice(0, 19).replace('T', ' '),
+            TinhTrang: "Đang xử lý",
+        };
+
+        const res = await ticketService.createServiceTicket(payload);
+    
+        if (res.errCode === 0) {
+            message.success(res.message);
+            setIsCreateOpen(false);
+            form.resetFields();
+            setItems([]);
+            fetchData();
+        } else {
+            message.error(res.message);
+        }
+    } catch (error) {
+        console.error("Save failed:", error);
+        // If it's not a validation error (validation errors have errorFields), show a generic message
+        if (!error.errorFields) {
+            message.error("Đã xảy ra lỗi khi lưu phiếu.");
+        }
+    }
+};
     const handleDelete = async () => {
         if(selectedRowKeys.length === 0) return;
         Modal.confirm({
@@ -228,12 +249,12 @@ const ServiceTicket = () => {
                 <Form form={form} layout="vertical">
                     <Row gutter={16}>
                         <Col span={8}>
-                            <Form.Item name="SoPhieuDV" label="Số Phiếu" rules={[{required: true}]}>
-                                <Input placeholder="PDV..." />
+                            <Form.Item name="SoPhieuDV" label="Số Phiếu" rules={[{required: true, message: "Vui lòng nhập số phiếu"}]}>
+                                <Input placeholder="Ví dụ: PDV01" />
                             </Form.Item>
                         </Col>
                         <Col span={8}>
-                            <Form.Item name="MaKH" label="Khách hàng" rules={[{required: true}]}>
+                            <Form.Item name="MaKH" label="Khách hàng" rules={[{required: true, message: "Vui lòng chọn khách hàng"}]}>
                                 <Select 
                                     showSearch 
                                     optionFilterProp="children"
@@ -251,41 +272,47 @@ const ServiceTicket = () => {
                     </Row>
 
                     {/* ITEMS LIST */}
-                    <div style={{marginBottom: 16, border: '1px solid #f0f0f0', padding: 10, borderRadius: 4}}>
-                        <div style={{display: 'flex', justifyContent: 'space-between', marginBottom: 8}}>
-                            <strong>Chi tiết dịch vụ</strong>
-                            <Button size="small" type="dashed" onClick={handleAddItem}>+ Thêm dịch vụ</Button>
+                        <div style={{marginBottom: 16, border: '1px solid #f0f0f0', padding: 10, borderRadius: 4}}>
+                            <div style={{display: 'flex', justifyContent: 'space-between', marginBottom: 8}}>
+                                <strong>Chi tiết dịch vụ</strong>
+                                <Button size="small" type="dashed" onClick={handleAddItem}>+ Thêm dịch vụ</Button>
+                            </div>
+                            {items.map((item, index) => (
+                                <Row gutter={8} key={item.key || index} style={{marginBottom: 8, alignItems: 'center'}}>
+                                    <Col span={8}>
+                                        <p>Loại dịch vụ</p>
+                                        <Select 
+                                            placeholder="Chọn dịch vụ" 
+                                            style={{width: '100%'}} 
+                                            value={item.MaLoaiDV}
+                                            onChange={(val) => handleItemChange(index, 'MaLoaiDV', val)}
+                                        >
+                                            {serviceTypes.map(t => <Select.Option key={t.MaLoaiDV} value={t.MaLoaiDV}>{t.TenLoaiDV}</Select.Option>)}
+                                        </Select>
+                                    </Col>
+                                    <Col span={3}>
+                                        <p>Số lượng</p>
+                                        <InputNumber min={1} value={item.SoLuong} onChange={(val) => handleItemChange(index, 'SoLuong', val)} placeholder="SL" style={{width: '100%'}}/>
+                                    </Col>
+                                    <Col span={4}>
+                                        <p>Đơn giá</p>
+                                        <InputNumber value={item.DonGiaDuocTinh} disabled formatter={val => `${val}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')} style={{width: '100%'}} />
+                                    </Col>
+                                    <Col span={4}>
+                                        <p>Tổng tiền</p>
+                                        <InputNumber value={item.ThanhTien} disabled formatter={val => `${val}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')} style={{width: '100%'}} />
+                                    </Col>
+                                    <Col span={4}>
+                                        <p>Trả trước</p>
+                                        <InputNumber value={item.TraTruoc} onChange={(val) => handleItemChange(index, 'TraTruoc', val)} placeholder="Trả trước" formatter={val => `${val}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')} style={{width: '100%'}} />
+                                    </Col>
+                                    <Col span={1}>
+                                        <br></br>
+                                        <Button danger icon={<DeleteOutlined />} size="small" onClick={() => handleRemoveItem(index)} />
+                                    </Col>
+                                </Row>
+                            ))}
                         </div>
-                        {items.map((item, index) => (
-                            <Row gutter={8} key={item.key || index} style={{marginBottom: 8, alignItems: 'center'}}>
-                                <Col span={8}>
-                                    <Select 
-                                        placeholder="Chọn dịch vụ" 
-                                        style={{width: '100%'}} 
-                                        value={item.MaLoaiDV}
-                                        onChange={(val) => handleItemChange(index, 'MaLoaiDV', val)}
-                                    >
-                                        {serviceTypes.map(t => <Select.Option key={t.MaLoaiDV} value={t.MaLoaiDV}>{t.TenLoaiDV}</Select.Option>)}
-                                    </Select>
-                                </Col>
-                                <Col span={3}>
-                                    <InputNumber min={1} value={item.SoLuong} onChange={(val) => handleItemChange(index, 'SoLuong', val)} placeholder="SL" style={{width: '100%'}}/>
-                                </Col>
-                                <Col span={4}>
-                                    <InputNumber value={item.DonGiaDuocTinh} disabled formatter={val => `${val}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')} style={{width: '100%'}} />
-                                </Col>
-                                <Col span={4}>
-                                    <InputNumber value={item.ThanhTien} disabled formatter={val => `${val}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')} style={{width: '100%'}} />
-                                </Col>
-                                <Col span={4}>
-                                    <InputNumber value={item.ThanhTienTraTruoc} onChange={(val) => handleItemChange(index, 'ThanhTienTraTruoc', val)} placeholder="Trả trước" formatter={val => `${val}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')} style={{width: '100%'}} />
-                                </Col>
-                                <Col span={1}>
-                                    <Button danger icon={<DeleteOutlined />} size="small" onClick={() => handleRemoveItem(index)} />
-                                </Col>
-                            </Row>
-                        ))}
-                    </div>
 
                     <Row gutter={16}>
                         <Col span={8}>
@@ -337,7 +364,7 @@ const ServiceTicket = () => {
                                 { title: 'SL', dataIndex: 'SoLuong' },
                                 { title: 'Đơn giá', dataIndex: 'DonGiaDuocTinh', render: val => formatCurrency(val) },
                                 { title: 'Thành tiền', dataIndex: 'ThanhTien', render: val => formatCurrency(val) },
-                                { title: 'Trả trước', dataIndex: 'ThanhTienTraTruoc', render: val => formatCurrency(val) },
+                                { title: 'Trả trước', dataIndex: 'TraTruoc', render: val => formatCurrency(val) },
                             ]}
                             rowKey="MaChiTietDV"
                         />
