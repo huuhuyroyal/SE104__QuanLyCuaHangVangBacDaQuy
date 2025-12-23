@@ -3,6 +3,7 @@ import ProductPage from "../page/ProductPage/ProductPage";
 import InventionReport from "../page/InventoryReport/InventoryReport";
 import Unit from "../page/Unit/Unit";
 import LoginPage from "../page/Login/LoginPage";
+import ProductType from "../page/ProductType/ProductType";
 import SalesInvoice from "../page/SalesInvoice/SalesInvoice";
 import PurchaseInvoice from "../page/PurchaseInvoice/PurchaseInvoice";
 import Title from "antd/es/skeleton/Title";
@@ -50,4 +51,10 @@ export const routes = [
     component: Unit,
     isShowSidebar: true,
   },
+  {
+  path: "/ProductType",
+  Title: "Quản lý loại sản phẩm",
+  component: ProductType,
+  isShowSidebar: true,
+},
 ];

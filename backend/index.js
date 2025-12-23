@@ -5,6 +5,9 @@ import authMiddleware from "./src/middleware/authMiddleware.js";
 import initProductRoute from "./src/routes/productRoute.js";
 import initUserRoute from "./src/routes/userRoute.js";
 import initDashboardRoute from "./src/routes/dashboardRoute.js";
+// --- IMPORT NEW ROUTE ---
+import initProductTypeRoute from "./src/routes/productTypeRoute.js"; 
+
 import initUnitRoute from "./src/routes/unitRoute.js";
 import initInvoiceRoute from "./src/routes/invoiceRoute.js";
 import initCustomerRoute from "./src/routes/customerRoute.js";
@@ -28,6 +31,10 @@ app.use(authMiddleware.verifyToken);
 // Khởi tạo các Route
 initProductRoute(app);
 initDashboardRoute(app);
+initProductTypeRoute(app);
+initUnitRoute(app);
+
+
 initUnitRoute(app);
 initInvoiceRoute(app);
 initCustomerRoute(app);
@@ -36,7 +43,7 @@ initSupplierRoute(app);
 initReportRoute(app);
 // Kiểm tra kết nối DB
 connectDB();
-// Chạy server
+
 app.listen(PORT, () => {
   console.log(`Server đang chạy ở port http://localhost:${PORT}`);
 });
