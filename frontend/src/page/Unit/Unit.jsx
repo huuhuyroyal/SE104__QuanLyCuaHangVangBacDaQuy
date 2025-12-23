@@ -17,6 +17,7 @@ import {
 } from "@ant-design/icons";
 import unitService from "../../services/unitService";
 import "./Unit.css";
+import { checkActionPermission } from "../../utils/checkRole";
 
 const Unit = () => {
   const [data, setData] = useState([]);
@@ -82,6 +83,7 @@ const Unit = () => {
 
   // Mở modal thêm mới
   const handleAddUnit = () => {
+    if (!checkActionPermission(["admin", "warehouse"])) return;
     setIsEditMode(false);
     setSelectedUnit(null);
     form.resetFields();
@@ -90,6 +92,7 @@ const Unit = () => {
 
   // Mở modal chỉnh sửa
   const handleEditUnit = (record) => {
+    if (!checkActionPermission(["admin", "warehouse"])) return;
     setIsEditMode(true);
     setSelectedUnit(record);
     form.setFieldsValue({
@@ -178,29 +181,45 @@ const Unit = () => {
       title: "Hành động",
       key: "action",
       width: 150,
-      render: (_, record) => (
-        <Space size="middle">
-          <Button
-            type="primary"
-            icon={<EditOutlined />}
-            onClick={() => handleEditUnit(record)}
-            size="small"
-          >
-            Sửa
-          </Button>
-          <Popconfirm
-            title="Xóa đơn vị tính"
-            description="Bạn có chắc chắn muốn xóa đơn vị tính này?"
-            onConfirm={() => handleDeleteUnit(record.MaDVT)}
-            okText="Có"
-            cancelText="Không"
-          >
-            <Button danger icon={<DeleteOutlined />} size="small">
-              Xóa
+      render: (_, record) => {
+        const allowDelete = checkActionPermission(["admin"], false);
+        return (
+          <Space size="middle">
+            <Button
+              type="primary"
+              icon={<EditOutlined />}
+              onClick={() => handleEditUnit(record)}
+              size="small"
+            >
+              Sửa
             </Button>
-          </Popconfirm>
-        </Space>
-      ),
+            {allowDelete ? (
+              <Popconfirm
+                title="Xóa đơn vị tính"
+                description="Bạn có chắc chắn muốn xóa đơn vị tính này?"
+                onConfirm={() => handleDeleteUnit(record.MaDVT)}
+                okText="Có"
+                cancelText="Không"
+              >
+                <Button danger icon={<DeleteOutlined />} size="small">
+                  Xóa
+                </Button>
+              </Popconfirm>
+            ) : (
+              <Button
+                danger
+                icon={<DeleteOutlined />}
+                size="small"
+                onClick={() =>
+                  message.error("Bạn không có quyền thực hiện chức năng này")
+                }
+              >
+                Xóa
+              </Button>
+            )}
+          </Space>
+        );
+      },
     },
   ];
 

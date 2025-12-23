@@ -33,19 +33,25 @@ export const getUserRole = () => {
 export const ROLE_PERMISSIONS = {
   admin: "ALL",
   warehouse: [
-    "/Dashboard",
-    "/ProductPage",
-    "/InventoryReport",
-    "/Unit",
-    "/PurchaseOrder",
+    "/Dashboard", //xem
+    "/ProductPage", //xem, tạo, sửa, xóa
+    "/InventoryReport", //xem
+    "/Unit", //xem, tạo, sửa
+    "/SalesInvoice", //xem
+    "/PurchaseOrder", //xem, tạo
+    "/ProductType", //xem, tạo, sửa
+    "/Profile", //xem, sửa
   ],
   seller: [
-    "/Unit",
     "/Dashboard",
     "/ProductPage",
-    "/SalesInvoice",
-    "/Customer",
-    "/ServiceType",
+    "/Unit",
+    "/SalesInvoice", //xem, tạo
+    "/ProductType", //Xem
+    "/ServiceType", //Xem
+    "/ServiceTicket", //xem, tạo
+    "/Customer", //xem, tạo, sửa, xóa
+    "/Profile", //xem, sửa
   ],
 };
 

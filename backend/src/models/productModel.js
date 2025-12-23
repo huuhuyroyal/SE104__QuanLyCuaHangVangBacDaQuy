@@ -5,9 +5,16 @@ const ProductModel = {
   getAllProducts: async () => {
     try {
       const query = `
-        SELECT s.*, l.TenLoaiSanPham 
-        FROM sanpham s 
-        LEFT JOIN loaisanpham l ON s.MaLoaiSanPham = l.MaLoaiSanPham
+        SELECT 
+            s.*, 
+            l.TenLoaiSanPham,
+            (
+              s.SoLuongTon 
+              + IFNULL((SELECT SUM(SoLuongMua) FROM CHITIETMUAHANG WHERE MaSanPham = s.MaSanPham), 0) 
+              - IFNULL((SELECT SUM(SoLuongBan) FROM CHITIETBANHANG WHERE MaSanPham = s.MaSanPham), 0)
+            ) AS TonKhoThucTe
+        FROM SANPHAM s
+        LEFT JOIN LOAISANPHAM l ON s.MaLoaiSanPham = l.MaLoaiSanPham
         ORDER BY s.MaSanPham DESC
       `;
       const [rows] = await connection.execute(query);

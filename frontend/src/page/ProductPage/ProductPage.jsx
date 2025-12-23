@@ -87,7 +87,7 @@ const ProductPage = () => {
           ProductID: item.MaSanPham,
           category: item.TenLoaiSanPham || "Chưa phân loại",
           categoryId: item.MaLoaiSanPham,
-          stock: item.SoLuongTon,
+          stock: item.TonKhoThucTe,
           price: new Intl.NumberFormat("vi-VN", {
             style: "currency",
             currency: "VND",
@@ -108,7 +108,7 @@ const ProductPage = () => {
 
   //XỬ LÝ XÓA
   const handleDeleteProducts = () => {
-    if (!checkActionPermission(["admin", "warehouse"])) return;
+    if (!checkActionPermission(["admin"])) return;
     if (state.selectedProducts.length === 0) return;
     const selectedItems = data.filter((item) =>
       state.selectedProducts.includes(item.ProductID)

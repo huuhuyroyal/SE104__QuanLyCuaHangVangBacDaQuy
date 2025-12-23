@@ -100,6 +100,9 @@ const PurchaseInvoice = () => {
   };
 
   const openCreate = () => {
+    if (!checkActionPermission(["warehouse"], false)) {
+      return message.error("Liên hệ với nhân viên thủ khoa để tạo phiếu mua");
+    }
     setEditing(null);
     setItems([]);
     form.resetFields();
@@ -109,6 +112,11 @@ const PurchaseInvoice = () => {
   };
 
   const openEdit = async (record) => {
+    if (!checkActionPermission(["warehouse"], false)) {
+      return message.error(
+        "Liên hệ với nhân viên thủ khoa để chỉnh sửa phiếu mua"
+      );
+    }
     try {
       const res = await getPurchaseByIdService(record.SoPhieuMH);
       if (res && res.data) {
@@ -164,8 +172,8 @@ const PurchaseInvoice = () => {
           TenSanPham: p.TenSanPham,
           HinhAnh: p.HinhAnh,
           SoLuongMua: 1,
-          DonGiaMua: p.DonGiaBanRa || p.DonGiaBan || 0,
-          ThanhTien: Number(p.DonGiaBanRa || p.DonGiaBan || 0),
+          DonGiaMua: p.DonGiaMua,
+          ThanhTien: Number(p.DonGiaMua),
         });
       }
     });
@@ -601,8 +609,8 @@ const PurchaseInvoice = () => {
             },
             {
               title: "Đơn giá",
-              dataIndex: "DonGiaBanRa",
-              key: "DonGiaBanRa",
+              dataIndex: "DonGiaMua",
+              key: "DonGiaMua",
               render: (v) => (v ? Number(v).toLocaleString() + " đ" : "N/A"),
             },
           ]}

@@ -7,7 +7,7 @@ const DashboardModel = {
       const query = `
         SELECT 
           (SELECT COUNT(*) FROM sanpham WHERE isDelete = 0) as products,
-          (SELECT COUNT(*) FROM loaisanpham) as categories,
+          (SELECT COUNT(*) FROM loaidichvu) as servicestype,
           (SELECT COUNT(*) FROM khachhang) as customers,
           (SELECT COUNT(*) FROM phieubanhang) as orders;
       `;
