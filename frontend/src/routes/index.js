@@ -5,6 +5,7 @@ import Unit from "../page/Unit/Unit";
 import LoginPage from "../page/Login/LoginPage";
 import SalesInvoice from "../page/SalesInvoice/SalesInvoice";
 import PurchaseInvoice from "../page/PurchaseInvoice/PurchaseInvoice";
+import SupplierPage from "../page/Supplier/Supplier";
 import Title from "antd/es/skeleton/Title";
 
 export const routes = [
@@ -42,6 +43,12 @@ export const routes = [
     path: "/PurchaseOrder",
     Title: "Quản lý phiếu mua hàng",
     component: PurchaseInvoice,
+    isShowSidebar: true,
+  },
+  {
+    path: "/Supplier",
+    Title: "Quản lý nhà cung cấp",
+    component: SupplierPage,
     isShowSidebar: true,
   },
   {
