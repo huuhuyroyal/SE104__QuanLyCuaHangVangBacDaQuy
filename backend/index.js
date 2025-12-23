@@ -7,6 +7,7 @@ import initUserRoute from "./src/routes/userRoute.js";
 import initDashboardRoute from "./src/routes/dashboardRoute.js";
 // --- IMPORT NEW ROUTE ---
 import initProductTypeRoute from "./src/routes/productTypeRoute.js"; 
+import initServiceTypeRoute from "./src/routes/serviceTypeRoute.js";
 
 import initUnitRoute from "./src/routes/unitRoute.js";
 import initInvoiceRoute from "./src/routes/invoiceRoute.js";
@@ -33,6 +34,7 @@ initProductRoute(app);
 initDashboardRoute(app);
 initProductTypeRoute(app);
 initUnitRoute(app);
+initServiceTypeRoute(app);
 
 
 initUnitRoute(app);
