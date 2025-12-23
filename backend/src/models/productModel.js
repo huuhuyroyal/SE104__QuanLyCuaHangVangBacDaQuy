@@ -1,7 +1,7 @@
 import { connection } from "../config/connectDB.js";
 
 const ProductModel = {
-  // Hàm lấy danh sách cũ của bạn
+  // Hàm lấy danh sách sản phẩm
   getAllProducts: async () => {
     try {
       const query = `

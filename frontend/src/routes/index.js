@@ -3,9 +3,12 @@ import ProductPage from "../page/ProductPage/ProductPage";
 import InventionReport from "../page/InventoryReport/InventoryReport";
 import Unit from "../page/Unit/Unit";
 import LoginPage from "../page/Login/LoginPage";
+import ProductType from "../page/ProductType/ProductType";
 import SalesInvoice from "../page/SalesInvoice/SalesInvoice";
 import PurchaseInvoice from "../page/PurchaseInvoice/PurchaseInvoice";
 import SupplierPage from "../page/Supplier/Supplier";
+import ServiceType from "../page/ServiceType/ServiceType";
+import ServiceTicket from "../page/ServiceTicket/ServiceTicket";
 import Title from "antd/es/skeleton/Title";
 
 export const routes = [
@@ -55,6 +58,24 @@ export const routes = [
     path: "/Unit",
     Title: "Quản lý đơn vị tính",
     component: Unit,
+    isShowSidebar: true,
+  },
+  {
+  path: "/ProductType",
+  Title: "Quản lý loại sản phẩm",
+  component: ProductType,
+  isShowSidebar: true,
+  },
+  {
+    path: "/ServiceType",
+    Title: "Quản lý loại dịch vụ",
+    component: ServiceType,
+    isShowSidebar: true,
+  },
+  {
+    path: "/ServiceTicket",
+    Title: "Quản lý phiếu dịch vụ",
+    component: ServiceTicket,
     isShowSidebar: true,
   },
 ];
