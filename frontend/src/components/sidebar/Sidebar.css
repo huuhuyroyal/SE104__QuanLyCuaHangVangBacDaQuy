@@ -16,9 +16,13 @@ body {
 .sidebar {
   width: 270px;
   background-color: var(--sidebar-color);
-  color: (--text-color);
+  color: var(--text-color);
   display: flex;
   flex-direction: column;
+  height: 100vh;
+  position: sticky;
+  top: 0;
+  overflow-y: auto;
 }
 
 .logo {

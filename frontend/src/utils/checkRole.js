@@ -40,12 +40,12 @@ export const ROLE_PERMISSIONS = {
     "/PurchaseOrder",
   ],
   seller: [
+    "/Unit",
     "/Dashboard",
     "/ProductPage",
-    "/SaleOrder",
+    "/SalesInvoice",
     "/Customer",
     "/ServiceType",
-    "/ServiceTicket",
   ],
 };
 
@@ -57,13 +57,13 @@ export const hasMenuAccess = (path) => {
   return allowedPaths.includes(path);
 };
 
-export const checkActionPermission = (allowedRoles) => {
+export const checkActionPermission = (allowedRoles, showMessage = true) => {
   const currentRole = getUserRole();
 
   if (!allowedRoles.includes(currentRole)) {
-    message.error(
-      `Bạn không có quyền thực hiện chức năng này. Vai trò của bạn hiện tại đang là ${currentRole}`
-    );
+    if (showMessage) {
+      message.error("Bạn không có quyền thực hiện chức năng này!");
+    }
     return false;
   }
   return true;

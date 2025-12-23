@@ -222,7 +222,7 @@ const Dashboard = () => {
               }}
             >
               <h3>Số lượng đơn hàng</h3>
-              <ResponsiveContainer width="100%" height="100%">
+              <ResponsiveContainer width="100%" height="90%">
                 <BarChart data={orderData}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis
@@ -255,7 +255,7 @@ const Dashboard = () => {
               }}
             >
               <h3>Tỷ trọng doanh thu theo danh mục (Năm 2025)</h3>
-              <ResponsiveContainer width="100%" height="100%">
+              <ResponsiveContainer width="100%" height="80%">
                 <PieChart>
                   <Pie
                     data={categoryData}

@@ -20,6 +20,7 @@ const ReportService = {
         return {
           maSanPham: item.MaSanPham,
           tenSanPham: item.TenSanPham,
+          HinhAnh: item.HinhAnh,
           dvt: item.TenDVT,
           tonDau: parseInt(item.TonDau),
           nhap: parseInt(item.SoLuongMuaVao),
