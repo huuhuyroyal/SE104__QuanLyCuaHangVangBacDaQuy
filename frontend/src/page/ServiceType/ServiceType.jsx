@@ -236,12 +236,22 @@ const ServiceType = () => {
                 name="PhanTramTraTruoc"
                 label="Phần trăm trả trước (%)"
                 style={{ flex: 1 }}
-                rules={[{ required: true, message: "Nhập % trả trước" }]}
-                initialValue={0}
+                rules={[
+                  { required: true, message: "Nhập % trả trước" },
+                  {
+                    validator: (_, value) => {
+                      if (value !== undefined && value < 50) {
+                        return Promise.reject(new Error("Phần trăm trả trước phải >= 50%"));
+                      }
+                      return Promise.resolve();
+                    },
+                  },
+                ]}
+                initialValue={50}
               >
                 <InputNumber 
                   style={{ width: '100%' }} 
-                  min={0} 
+                  min={0}
                   max={100} 
                   placeholder="Ví dụ: 50"
                 />
