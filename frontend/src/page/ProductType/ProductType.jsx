@@ -101,7 +101,8 @@ const ProductType = () => {
     setIsModalOpen(true);
   };
 
-  const handleOk = async () => {
+
+const handleOk = async () => {
     try {
       const values = await form.validateFields();
       setLoading(true);
@@ -110,6 +111,8 @@ const ProductType = () => {
         ? await updateProductTypeService(values)
         : await createProductTypeService(values);
 
+      console.log("Server Response:", res); 
+
       if (res && res.errCode === 0) {
         message.success(res.message);
         setIsModalOpen(false);
@@ -117,6 +120,7 @@ const ProductType = () => {
       } else {
         message.error(res.message || "Có lỗi xảy ra");
       }
+
     } catch (error) {
       console.log("Validate Failed:", error);
     } finally {
