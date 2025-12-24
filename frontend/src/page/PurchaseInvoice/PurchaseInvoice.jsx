@@ -1,10 +1,34 @@
 import React, { useEffect, useState } from "react";
-import { Table, Button, Modal, Form, Input, InputNumber, Select, Row, Col, message, Descriptions } from "antd";
-import { DeleteOutlined, PlusOutlined, EditOutlined, ExportOutlined } from "@ant-design/icons";
-import { getPurchasesService, createPurchaseService, updatePurchaseService, deletePurchasesService, getPurchaseByIdService } from "../../services/purchaseService";
+import {
+  Table,
+  Button,
+  Modal,
+  Form,
+  Input,
+  InputNumber,
+  Select,
+  Row,
+  Col,
+  message,
+  Descriptions,
+} from "antd";
+import {
+  DeleteOutlined,
+  PlusOutlined,
+  EditOutlined,
+  ExportOutlined,
+} from "@ant-design/icons";
+import {
+  getPurchasesService,
+  createPurchaseService,
+  updatePurchaseService,
+  deletePurchasesService,
+  getPurchaseByIdService,
+} from "../../services/purchaseService";
 import supplierService from "../../services/supplierService";
 import getAllProductsService from "../../services/productService";
 import "./PurchaseInvoice.css";
+import { checkActionPermission } from "../../utils/checkRole";
 
 const PurchaseInvoice = () => {
   const [purchases, setPurchases] = useState([]);
@@ -76,6 +100,9 @@ const PurchaseInvoice = () => {
   };
 
   const openCreate = () => {
+    if (!checkActionPermission(["warehouse"], false)) {
+      return message.error("Liên hệ với Thủ kho để tạo phiếu mua hàng");
+    }
     setEditing(null);
     setItems([]);
     form.resetFields();
@@ -85,6 +112,9 @@ const PurchaseInvoice = () => {
   };
 
   const openEdit = async (record) => {
+    if (!checkActionPermission(["warehouse"], false)) {
+      return message.error("Liên hệ với Thủ kho để sửa phiếu mua hàng");
+    }
     try {
       const res = await getPurchaseByIdService(record.SoPhieuMH);
       if (res && res.data) {
@@ -92,7 +122,9 @@ const PurchaseInvoice = () => {
         setEditing(purchase.SoPhieuMH);
         form.setFieldsValue({
           SoPhieuMH: purchase.SoPhieuMH,
-          NgayLap: purchase.NgayLap ? toDateYMD(new Date(purchase.NgayLap)) : "",
+          NgayLap: purchase.NgayLap
+            ? toDateYMD(new Date(purchase.NgayLap))
+            : "",
           MaNCC: purchase.MaNCC,
           TenNCC: purchase.TenNCC,
         });
@@ -125,7 +157,9 @@ const PurchaseInvoice = () => {
   };
 
   const addSelectedProducts = () => {
-    const selected = productsList.filter((p) => selectedProductsKeys.includes(p.MaSanPham));
+    const selected = productsList.filter((p) =>
+      selectedProductsKeys.includes(p.MaSanPham)
+    );
     const newItems = [...items];
     selected.forEach((p) => {
       const exists = newItems.find((it) => it.MaSanPham === p.MaSanPham);
@@ -149,7 +183,8 @@ const PurchaseInvoice = () => {
   const handleItemChange = (index, key, value) => {
     const newItems = [...items];
     newItems[index][key] = value;
-    newItems[index].ThanhTien = (newItems[index].SoLuongMua || 0) * (newItems[index].DonGiaMua || 0);
+    newItems[index].ThanhTien =
+      (newItems[index].SoLuongMua || 0) * (newItems[index].DonGiaMua || 0);
     setItems(newItems);
   };
 
@@ -251,6 +286,9 @@ const PurchaseInvoice = () => {
   };
 
   const showBulkDeleteConfirm = () => {
+    if (!checkActionPermission(["admin"], false)) {
+      return message.error("Liên hệ với admin để xóa phiếu mua hàng");
+    }
     Modal.confirm({
       title: "Xác nhận xóa",
       content: `Bạn có chắc chắn muốn xóa ${selectedRowKeys.length} phiếu mua đã chọn?`,
@@ -263,9 +301,19 @@ const PurchaseInvoice = () => {
 
   const columns = [
     { title: "Mã phiếu", dataIndex: "SoPhieuMH", key: "SoPhieuMH" },
-    { title: "Ngày lập", dataIndex: "NgayLap", key: "NgayLap", render: (v) => (v ? new Date(v).toLocaleDateString("vi-VN") : "") },
+    {
+      title: "Ngày lập",
+      dataIndex: "NgayLap",
+      key: "NgayLap",
+      render: (v) => (v ? new Date(v).toLocaleDateString("vi-VN") : ""),
+    },
     { title: "Nhà cung cấp", dataIndex: "TenNCC", key: "TenNCC" },
-    { title: "Tổng tiền", dataIndex: "TongTien", key: "TongTien", render: (v) => (v ? formatVND(v) : "") },
+    {
+      title: "Tổng tiền",
+      dataIndex: "TongTien",
+      key: "TongTien",
+      render: (v) => (v ? formatVND(v) : ""),
+    },
     {
       title: "",
       key: "action",
@@ -275,7 +323,12 @@ const PurchaseInvoice = () => {
           <Button size="small" onClick={() => openDetail(record)}>
             Xem
           </Button>
-          <Button type="primary" icon={<EditOutlined />} size="small" onClick={() => openEdit(record)}>
+          <Button
+            type="primary"
+            icon={<EditOutlined />}
+            size="small"
+            onClick={() => openEdit(record)}
+          >
             Sửa
           </Button>
         </div>
@@ -286,22 +339,45 @@ const PurchaseInvoice = () => {
   return (
     <div className="main">
       <header className="Unit-header">
-        <Input.Search placeholder="Tìm kiếm theo mã phiếu hoặc nhà cung cấp..." onChange={handleSearchChange} value={search} />
+        <Input.Search
+          placeholder="Tìm kiếm theo mã phiếu hoặc nhà cung cấp..."
+          onChange={handleSearchChange}
+          value={search}
+        />
         <div className="add-section">
-          <Button type="default" disabled={selectedRowKeys.length === 0} onClick={handleBulkExport} icon={<ExportOutlined />}>
+          <Button
+            type="default"
+            disabled={selectedRowKeys.length === 0}
+            onClick={handleBulkExport}
+            icon={<ExportOutlined />}
+          >
             Xuất file
           </Button>
-          <Button danger disabled={selectedRowKeys.length === 0} onClick={showBulkDeleteConfirm} icon={<DeleteOutlined />}>
-            Xóa{selectedRowKeys.length > 0 ? ` (${selectedRowKeys.length})` : ""}
+          <Button
+            danger
+            disabled={selectedRowKeys.length === 0}
+            onClick={showBulkDeleteConfirm}
+            icon={<DeleteOutlined />}
+          >
+            Xóa
+            {selectedRowKeys.length > 0 ? ` (${selectedRowKeys.length})` : ""}
           </Button>
-          <Button type="primary" icon={<PlusOutlined />} onClick={openCreate} className="add-product">
+          <Button
+            type="primary"
+            icon={<PlusOutlined />}
+            onClick={openCreate}
+            className="add-product"
+          >
             Tạo mới
           </Button>
         </div>
       </header>
 
       <Table
-        rowSelection={{ selectedRowKeys, onChange: (keys) => setSelectedRowKeys(keys) }}
+        rowSelection={{
+          selectedRowKeys,
+          onChange: (keys) => setSelectedRowKeys(keys),
+        }}
         pagination={{
           defaultPageSize: 10,
           showSizeChanger: true,
@@ -335,7 +411,11 @@ const PurchaseInvoice = () => {
               </Form.Item>
             </Col>
             <Col span={12}>
-              <Form.Item name="NgayLap" label="Ngày lập" rules={[{ required: true, message: "Vui lòng chọn ngày" }]}>
+              <Form.Item
+                name="NgayLap"
+                label="Ngày lập"
+                rules={[{ required: true, message: "Vui lòng chọn ngày" }]}
+              >
                 <Input type="date" />
               </Form.Item>
             </Col>
@@ -367,7 +447,16 @@ const PurchaseInvoice = () => {
                 <Input />
               </Form.Item>
               <Table
-                dataSource={selectedSupplier ? [{ key: selectedSupplier.MaNCC || "selected", ...selectedSupplier }] : []}
+                dataSource={
+                  selectedSupplier
+                    ? [
+                        {
+                          key: selectedSupplier.MaNCC || "selected",
+                          ...selectedSupplier,
+                        },
+                      ]
+                    : []
+                }
                 pagination={false}
                 columns={[
                   { title: "Mã NCC", dataIndex: "MaNCC", key: "MaNCC" },
@@ -404,7 +493,10 @@ const PurchaseInvoice = () => {
                 <div className="item-card" key={it.MaChiTietMH || idx}>
                   <div className="item-left">
                     {(() => {
-                      const src = it.HinhAnh && it.HinhAnh !== "#" ? it.HinhAnh : "/no-image.png";
+                      const src =
+                        it.HinhAnh && it.HinhAnh !== "#"
+                          ? it.HinhAnh
+                          : "/no-image.png";
                       return (
                         <img
                           src={src}
@@ -417,15 +509,21 @@ const PurchaseInvoice = () => {
                     })()}
                   </div>
                   <div className="item-body">
-                    <div className="item-title">{it.TenSanPham || it.MaSanPham || "(Chưa chọn)"}</div>
+                    <div className="item-title">
+                      {it.TenSanPham || it.MaSanPham || "(Chưa chọn)"}
+                    </div>
                     <div className="item-meta">
                       Đơn giá mua:
                       <InputNumber
                         min={0}
                         style={{ width: 140, marginLeft: 8 }}
                         value={it.DonGiaMua}
-                        onChange={(val) => handleItemChange(idx, "DonGiaMua", Number(val || 0))}
-                        formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+                        onChange={(val) =>
+                          handleItemChange(idx, "DonGiaMua", Number(val || 0))
+                        }
+                        formatter={(value) =>
+                          `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                        }
                         parser={(value) => value.replace(/,/g, "")}
                       />
                     </div>
@@ -435,11 +533,16 @@ const PurchaseInvoice = () => {
                         min={0}
                         style={{ width: 120, marginLeft: 8 }}
                         value={it.SoLuongMua}
-                        onChange={(val) => handleItemChange(idx, "SoLuongMua", Number(val || 0))}
+                        onChange={(val) =>
+                          handleItemChange(idx, "SoLuongMua", Number(val || 0))
+                        }
                       />
                     </div>
                     <div className="item-meta" style={{ marginTop: 6 }}>
-                      Thành tiền: <b style={{ color: "#0066cc" }}>{Number(it.ThanhTien || 0).toLocaleString()} đ</b>
+                      Thành tiền:{" "}
+                      <b style={{ color: "#0066cc" }}>
+                        {Number(it.ThanhTien || 0).toLocaleString()} đ
+                      </b>
                     </div>
                     <div className="item-actions" style={{ marginTop: 8 }}>
                       <Button
@@ -482,7 +585,11 @@ const PurchaseInvoice = () => {
           pagination={{ pageSize: 5 }}
           columns={[
             { title: "Mã", dataIndex: "MaSanPham", key: "MaSanPham" },
-            { title: "Tên sản phẩm", dataIndex: "TenSanPham", key: "TenSanPham" },
+            {
+              title: "Tên sản phẩm",
+              dataIndex: "TenSanPham",
+              key: "TenSanPham",
+            },
             {
               title: "Đơn giá",
               dataIndex: "DonGiaBanRa",
@@ -498,7 +605,9 @@ const PurchaseInvoice = () => {
         onCancel={() => setSupplierModalVisible(false)}
         onOk={() => {
           if (selectedSupplierKey) {
-            const s = suppliers.find((sup) => sup.MaNCC === selectedSupplierKey);
+            const s = suppliers.find(
+              (sup) => sup.MaNCC === selectedSupplierKey
+            );
             if (s) {
               form.setFieldsValue({ MaNCC: s.MaNCC, TenNCC: s.TenNCC });
               setSelectedSupplier({ MaNCC: s.MaNCC, TenNCC: s.TenNCC });
@@ -532,7 +641,8 @@ const PurchaseInvoice = () => {
             rowSelection={{
               type: "radio",
               selectedRowKeys: selectedSupplierKey ? [selectedSupplierKey] : [],
-              onChange: (keys) => setSelectedSupplierKey(keys && keys.length ? keys[0] : null),
+              onChange: (keys) =>
+                setSelectedSupplierKey(keys && keys.length ? keys[0] : null),
             }}
             columns={[
               { title: "Mã NCC", dataIndex: "MaNCC", key: "MaNCC" },
@@ -566,50 +676,159 @@ const PurchaseInvoice = () => {
       >
         {exportPurchase ? (
           <div style={{ fontFamily: "Times New Roman, serif", padding: 12 }}>
-            <div style={{ border: "1px solid #000", padding: 8, marginTop: 20 }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <div
+              style={{ border: "1px solid #000", padding: 8, marginTop: 20 }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}
+              >
                 <div style={{ textAlign: "center", flex: 1 }}>
                   <h2 style={{ margin: 0 }}>PHIẾU MUA HÀNG</h2>
                 </div>
               </div>
 
-              <div style={{ borderTop: "1px solid #000", marginTop: 8, paddingTop: 8 }}>
-                <div style={{ marginBottom: 6 }}><b>Số phiếu:</b> {exportPurchase.purchase.SoPhieuMH}</div>
-                <div style={{ marginBottom: 6 }}><b>Ngày lập:</b> {exportPurchase.purchase.NgayLap ? new Date(exportPurchase.purchase.NgayLap).toLocaleDateString("vi-VN") : ""}</div>
-                <div style={{ marginBottom: 6 }}><b>Nhà cung cấp:</b> {exportPurchase.purchase.TenNCC || exportPurchase.purchase.MaNCC || ""}</div>
-                <div style={{ marginBottom: 6 }}><b>Địa chỉ:</b> {exportPurchase.purchase.DiaChi || ""}</div>
-                <div style={{ marginBottom: 6 }}><b>SĐT:</b> {exportPurchase.purchase.SoDienThoai || ""}</div>
+              <div
+                style={{
+                  borderTop: "1px solid #000",
+                  marginTop: 8,
+                  paddingTop: 8,
+                }}
+              >
+                <div style={{ marginBottom: 6 }}>
+                  <b>Số phiếu:</b> {exportPurchase.purchase.SoPhieuMH}
+                </div>
+                <div style={{ marginBottom: 6 }}>
+                  <b>Ngày lập:</b>{" "}
+                  {exportPurchase.purchase.NgayLap
+                    ? new Date(
+                        exportPurchase.purchase.NgayLap
+                      ).toLocaleDateString("vi-VN")
+                    : ""}
+                </div>
+                <div style={{ marginBottom: 6 }}>
+                  <b>Nhà cung cấp:</b>{" "}
+                  {exportPurchase.purchase.TenNCC ||
+                    exportPurchase.purchase.MaNCC ||
+                    ""}
+                </div>
+                <div style={{ marginBottom: 6 }}>
+                  <b>Địa chỉ:</b> {exportPurchase.purchase.DiaChi || ""}
+                </div>
+                <div style={{ marginBottom: 6 }}>
+                  <b>SĐT:</b> {exportPurchase.purchase.SoDienThoai || ""}
+                </div>
               </div>
 
               <div style={{ marginTop: 12 }}>
                 <table style={{ width: "100%", borderCollapse: "collapse" }}>
                   <thead>
                     <tr>
-                      <th style={{ border: "1px solid #000", padding: 6 }}>Stt</th>
-                      <th style={{ border: "1px solid #000", padding: 6 }}>Sản phẩm</th>
-                      <th style={{ border: "1px solid #000", padding: 6 }}>Loại sản phẩm</th>
-                      <th style={{ border: "1px solid #000", padding: 6 }}>Số lượng</th>
-                      <th style={{ border: "1px solid #000", padding: 6 }}>Đơn vị tính</th>
-                      <th style={{ border: "1px solid #000", padding: 6 }}>Đơn giá</th>
-                      <th style={{ border: "1px solid #000", padding: 6 }}>Thành tiền</th>
+                      <th style={{ border: "1px solid #000", padding: 6 }}>
+                        Stt
+                      </th>
+                      <th style={{ border: "1px solid #000", padding: 6 }}>
+                        Sản phẩm
+                      </th>
+                      <th style={{ border: "1px solid #000", padding: 6 }}>
+                        Loại sản phẩm
+                      </th>
+                      <th style={{ border: "1px solid #000", padding: 6 }}>
+                        Số lượng
+                      </th>
+                      <th style={{ border: "1px solid #000", padding: 6 }}>
+                        Đơn vị tính
+                      </th>
+                      <th style={{ border: "1px solid #000", padding: 6 }}>
+                        Đơn giá
+                      </th>
+                      <th style={{ border: "1px solid #000", padding: 6 }}>
+                        Thành tiền
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
                     {exportPurchase.items && exportPurchase.items.length > 0 ? (
                       exportPurchase.items.map((it, idx) => (
                         <tr key={it.MaChiTietMH || idx}>
-                          <td style={{ border: "1px solid #000", padding: 6, textAlign: "center" }}>{idx + 1}</td>
-                          <td style={{ border: "1px solid #000", padding: 6, textAlign: "center" }}>{it.TenSanPham || it.MaSanPham}</td>
-                          <td style={{ border: "1px solid #000", padding: 6, textAlign: "center" }}>{it.TenLoaiSanPham || ""}</td>
-                          <td style={{ border: "1px solid #000", padding: 6, textAlign: "center" }}>{it.SoLuongMua || 0}</td>
-                          <td style={{ border: "1px solid #000", padding: 6, textAlign: "center" }}>{it.TenDVT || ""}</td>
-                          <td style={{ border: "1px solid #000", padding: 6, textAlign: "center" }}>{Number(it.DonGiaMua || 0).toLocaleString()} đ</td>
-                          <td style={{ border: "1px solid #000", padding: 6, textAlign: "center" }}>{Number(it.ThanhTien || 0).toLocaleString()} đ</td>
+                          <td
+                            style={{
+                              border: "1px solid #000",
+                              padding: 6,
+                              textAlign: "center",
+                            }}
+                          >
+                            {idx + 1}
+                          </td>
+                          <td
+                            style={{
+                              border: "1px solid #000",
+                              padding: 6,
+                              textAlign: "center",
+                            }}
+                          >
+                            {it.TenSanPham || it.MaSanPham}
+                          </td>
+                          <td
+                            style={{
+                              border: "1px solid #000",
+                              padding: 6,
+                              textAlign: "center",
+                            }}
+                          >
+                            {it.TenLoaiSanPham || ""}
+                          </td>
+                          <td
+                            style={{
+                              border: "1px solid #000",
+                              padding: 6,
+                              textAlign: "center",
+                            }}
+                          >
+                            {it.SoLuongMua || 0}
+                          </td>
+                          <td
+                            style={{
+                              border: "1px solid #000",
+                              padding: 6,
+                              textAlign: "center",
+                            }}
+                          >
+                            {it.TenDVT || ""}
+                          </td>
+                          <td
+                            style={{
+                              border: "1px solid #000",
+                              padding: 6,
+                              textAlign: "center",
+                            }}
+                          >
+                            {Number(it.DonGiaMua || 0).toLocaleString()} đ
+                          </td>
+                          <td
+                            style={{
+                              border: "1px solid #000",
+                              padding: 6,
+                              textAlign: "center",
+                            }}
+                          >
+                            {Number(it.ThanhTien || 0).toLocaleString()} đ
+                          </td>
                         </tr>
                       ))
                     ) : (
                       <tr>
-                        <td colSpan={7} style={{ border: "1px solid #000", padding: 6, textAlign: "center" }}>
+                        <td
+                          colSpan={7}
+                          style={{
+                            border: "1px solid #000",
+                            padding: 6,
+                            textAlign: "center",
+                          }}
+                        >
                           Không có chi tiết
                         </td>
                       </tr>
@@ -619,7 +838,14 @@ const PurchaseInvoice = () => {
 
                 <div style={{ textAlign: "right", marginTop: 8 }}>
                   <b>
-                    Tổng: {formatVND(exportPurchase.purchase.TongTien || exportPurchase.items.reduce((s, it) => s + (Number(it.ThanhTien) || 0), 0))}
+                    Tổng:{" "}
+                    {formatVND(
+                      exportPurchase.purchase.TongTien ||
+                        exportPurchase.items.reduce(
+                          (s, it) => s + (Number(it.ThanhTien) || 0),
+                          0
+                        )
+                    )}
                   </b>
                 </div>
               </div>
@@ -638,36 +864,118 @@ const PurchaseInvoice = () => {
         width={900}
       >
         {detailLoading ? (
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}>Đang tải...</div>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              padding: 24,
+            }}
+          >
+            Đang tải...
+          </div>
         ) : detailPurchase ? (
           <>
-            <Descriptions bordered size="middle" column={2} style={{ marginBottom: 16 }}>
-              <Descriptions.Item label="Mã phiếu">{detailPurchase.SoPhieuMH}</Descriptions.Item>
-              <Descriptions.Item label="Ngày lập">{detailPurchase.NgayLap ? new Date(detailPurchase.NgayLap).toLocaleDateString("vi-VN") : ""}</Descriptions.Item>
-              <Descriptions.Item label="Mã NCC">{detailPurchase.MaNCC || ""}</Descriptions.Item>
-              <Descriptions.Item label="Tên NCC">{detailPurchase.TenNCC || ""}</Descriptions.Item>
-              <Descriptions.Item label="Địa chỉ" span={2}>{detailPurchase.DiaChi || ""}</Descriptions.Item>
-              <Descriptions.Item label="SĐT" span={2}>{detailPurchase.SoDienThoai || ""}</Descriptions.Item>
-              <Descriptions.Item label="Tổng tiền" span={2}>{formatVND(detailPurchase.TongTien || detailItems.reduce((s, it) => s + (Number(it.ThanhTien) || 0), 0))}</Descriptions.Item>
+            <Descriptions
+              bordered
+              size="middle"
+              column={2}
+              style={{ marginBottom: 16 }}
+            >
+              <Descriptions.Item label="Mã phiếu">
+                {detailPurchase.SoPhieuMH}
+              </Descriptions.Item>
+              <Descriptions.Item label="Ngày lập">
+                {detailPurchase.NgayLap
+                  ? new Date(detailPurchase.NgayLap).toLocaleDateString("vi-VN")
+                  : ""}
+              </Descriptions.Item>
+              <Descriptions.Item label="Mã NCC">
+                {detailPurchase.MaNCC || ""}
+              </Descriptions.Item>
+              <Descriptions.Item label="Tên NCC">
+                {detailPurchase.TenNCC || ""}
+              </Descriptions.Item>
+              <Descriptions.Item label="Địa chỉ" span={2}>
+                {detailPurchase.DiaChi || ""}
+              </Descriptions.Item>
+              <Descriptions.Item label="SĐT" span={2}>
+                {detailPurchase.SoDienThoai || ""}
+              </Descriptions.Item>
+              <Descriptions.Item label="Tổng tiền" span={2}>
+                {formatVND(
+                  detailPurchase.TongTien ||
+                    detailItems.reduce(
+                      (s, it) => s + (Number(it.ThanhTien) || 0),
+                      0
+                    )
+                )}
+              </Descriptions.Item>
             </Descriptions>
 
             <Table
               dataSource={detailItems}
-              rowKey={(r, idx) => r.MaChiTietMH || `${r.MaSanPham || ""}-${idx}`}
+              rowKey={(r, idx) =>
+                r.MaChiTietMH || `${r.MaSanPham || ""}-${idx}`
+              }
               pagination={false}
               columns={[
-                { title: "Mã SP", dataIndex: "MaSanPham", key: "MaSanPham", align: "center" },
-                { title: "Tên sản phẩm", dataIndex: "TenSanPham", key: "TenSanPham", align: "center" },
-                { title: "Loại", dataIndex: "TenLoaiSanPham", key: "TenLoaiSanPham", align: "center" },
-                { title: "ĐVT", dataIndex: "TenDVT", key: "TenDVT", align: "center" },
-                { title: "Số lượng", dataIndex: "SoLuongMua", key: "SoLuongMua", align: "center" },
-                { title: "Đơn giá", dataIndex: "DonGiaMua", key: "DonGiaMua", align: "center", render: (v) => (v ? formatVND(v) : "") },
-                { title: "Thành tiền", dataIndex: "ThanhTien", key: "ThanhTien", align: "center", render: (v) => (v ? formatVND(v) : "") },
+                {
+                  title: "Mã SP",
+                  dataIndex: "MaSanPham",
+                  key: "MaSanPham",
+                  align: "center",
+                },
+                {
+                  title: "Tên sản phẩm",
+                  dataIndex: "TenSanPham",
+                  key: "TenSanPham",
+                  align: "center",
+                },
+                {
+                  title: "Loại",
+                  dataIndex: "TenLoaiSanPham",
+                  key: "TenLoaiSanPham",
+                  align: "center",
+                },
+                {
+                  title: "ĐVT",
+                  dataIndex: "TenDVT",
+                  key: "TenDVT",
+                  align: "center",
+                },
+                {
+                  title: "Số lượng",
+                  dataIndex: "SoLuongMua",
+                  key: "SoLuongMua",
+                  align: "center",
+                },
+                {
+                  title: "Đơn giá",
+                  dataIndex: "DonGiaMua",
+                  key: "DonGiaMua",
+                  align: "center",
+                  render: (v) => (v ? formatVND(v) : ""),
+                },
+                {
+                  title: "Thành tiền",
+                  dataIndex: "ThanhTien",
+                  key: "ThanhTien",
+                  align: "center",
+                  render: (v) => (v ? formatVND(v) : ""),
+                },
               ]}
             />
 
             <div style={{ textAlign: "right", marginTop: 12, fontWeight: 600 }}>
-              Tổng: {formatVND(detailPurchase.TongTien || detailItems.reduce((s, it) => s + (Number(it.ThanhTien) || 0), 0))}
+              Tổng:{" "}
+              {formatVND(
+                detailPurchase.TongTien ||
+                  detailItems.reduce(
+                    (s, it) => s + (Number(it.ThanhTien) || 0),
+                    0
+                  )
+              )}
             </div>
           </>
         ) : (

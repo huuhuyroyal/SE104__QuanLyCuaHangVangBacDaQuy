@@ -11,11 +11,7 @@ import {
   Popconfirm,
   Select,
 } from "antd";
-import {
-  PlusOutlined,
-  DeleteOutlined,
-  EditOutlined,
-} from "@ant-design/icons";
+import { PlusOutlined, DeleteOutlined, EditOutlined } from "@ant-design/icons";
 
 import {
   getAllProductTypesService,
@@ -25,6 +21,7 @@ import {
 } from "../../services/productTypeService";
 
 import unitService from "../../services/unitService";
+import { checkActionPermission } from "../../utils/checkRole";
 
 const ProductType = () => {
   const [data, setData] = useState([]);
@@ -34,7 +31,6 @@ const ProductType = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
   const [form] = Form.useForm();
-
 
   const fetchData = async () => {
     setLoading(true);
@@ -54,7 +50,6 @@ const ProductType = () => {
       setLoading(false);
     }
   };
-
 
   const fetchUnits = async () => {
     try {
@@ -77,7 +72,6 @@ const ProductType = () => {
     fetchUnits();
   }, []);
 
-
   const handleSearch = (e) => {
     const value = e.target.value.toLowerCase();
     const filtered = data.filter(
@@ -88,14 +82,15 @@ const ProductType = () => {
     setFilteredData(filtered);
   };
 
-
   const handleOpenAdd = () => {
+    if (!checkActionPermission(["admin", "warehouse"])) return;
     setIsEdit(false);
     form.resetFields();
     setIsModalOpen(true);
   };
 
   const handleOpenEdit = (record) => {
+    if (!checkActionPermission(["admin", "warehouse"])) return;
     setIsEdit(true);
     form.setFieldsValue({
       MaLoaiSanPham: record.MaLoaiSanPham,
@@ -133,7 +128,6 @@ const handleOk = async () => {
     }
   };
 
-
   const handleDelete = async (id) => {
     try {
       const res = await deleteProductTypeService(id);
@@ -159,22 +153,38 @@ const handleOk = async () => {
     },
     {
       title: "Hành động",
-      render: (_, record) => (
-        <Space>
-          <Button
-            icon={<EditOutlined />}
-            onClick={() => handleOpenEdit(record)}
-          />
-          <Popconfirm
-            title="Bạn có chắc muốn xóa?"
-            onConfirm={() => handleDelete(record.MaLoaiSanPham)}
-            okText="Có"
-            cancelText="Không"
-          >
-            <Button danger icon={<DeleteOutlined />} />
-          </Popconfirm>
-        </Space>
-      ),
+      render: (_, record) => {
+        const allowDelete = checkActionPermission(["admin"], false);
+        return (
+          <Space>
+            <Button
+              icon={<EditOutlined />}
+              onClick={() => handleOpenEdit(record)}
+            />
+            {allowDelete ? (
+              <Popconfirm
+                title="Bạn có chắc muốn xóa?"
+                onConfirm={() => handleDelete(record.MaLoaiSanPham)}
+                okText="Có"
+                cancelText="Không"
+              >
+                <Button danger icon={<DeleteOutlined />} />
+              </Popconfirm>
+            ) : (
+              <Button
+                danger
+                icon={<DeleteOutlined />}
+                size="small"
+                onClick={() =>
+                  message.error("Liên hệ admin để xóa loại sản phẩm này")
+                }
+              >
+                Xóa
+              </Button>
+            )}
+          </Space>
+        );
+      },
     },
   ];
 
@@ -187,7 +197,11 @@ const handleOk = async () => {
             onChange={handleSearch}
             style={{ width: 300 }}
           />
-          <Button type="primary" icon={<PlusOutlined />} onClick={handleOpenAdd}>
+          <Button
+            type="primary"
+            icon={<PlusOutlined />}
+            onClick={handleOpenAdd}
+          >
             Thêm mới
           </Button>
         </header>
