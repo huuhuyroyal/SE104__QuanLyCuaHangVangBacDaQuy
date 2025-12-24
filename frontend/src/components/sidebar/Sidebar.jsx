@@ -115,8 +115,8 @@ const Sidebar = () => {
             <span href="#">Quản lý khách hàng</span>
           </li>
           <li
-            className={isActive("/Staff")}
-            onClick={() => handleNavigate("/Staff")}
+            className={isActive("/Employee")}
+            onClick={() => handleNavigate("/Employee")}
           >
             <img src="/ql_nhan_vien.svg" alt="" />
             <span href="#">Quản lý nhân viên</span>

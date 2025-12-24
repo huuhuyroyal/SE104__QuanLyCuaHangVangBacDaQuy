@@ -10,6 +10,8 @@ import SupplierPage from "../page/Supplier/Supplier";
 import ServiceType from "../page/ServiceType/ServiceType";
 import ServiceTicket from "../page/ServiceTicket/ServiceTicket";
 import Title from "antd/es/skeleton/Title";
+import ListEmployee from "../page/ListEmployee/ListEmployee";
+import DetailEmployee from "../page/DetailEmployee/DetailEmployee";
 
 export const routes = [
   {
@@ -77,5 +79,17 @@ export const routes = [
     Title: "Quản lý phiếu dịch vụ",
     component: ServiceTicket,
     isShowSidebar: true,
+  },
+  {
+    path: "/Employee",
+    Title: "Quản lý nhân viên",
+    component: ListEmployee,
+    isShowSidebar: true,
+  },
+  {
+    path: "/employee-detail/:id",
+    Title: "Thông tin nhân viên",
+    component: DetailEmployee,
+    isShowSidebar: false,
   },
 ];

@@ -5,15 +5,21 @@ const axiosInstance = axios; // shared axios instance with auth interceptor
 const employeeService = {
   getAllEmployees: async () => {
     try {
-      const response = await axiosInstance.get('/user/get-all');
-      return response.data.map(user => ({
+      const resp = await axiosInstance.get('/api/employees');
+      const payload = resp && resp.errCode === 0 ? resp.data : [];
+      return payload.map((user) => ({
         key: user.MaTaiKhoan,
         id: user.MaTaiKhoan,
         employeeCode: `NV${user.MaTaiKhoan.toString().padStart(3, '0')}`,
         username: user.TenTaiKhoan,
-        role: user.Role === 'admin' ? 'Quản lý' : 
-              user.Role === 'seller' ? 'Nhân viên bán hàng' : 
-              user.Role === 'warehouse' ? 'Nhân viên kho' : 'Nhân viên'
+        role:
+          user.Role === "admin"
+            ? "Quản lý"
+            : user.Role === "seller"
+            ? "Nhân viên bán hàng"
+            : user.Role === "warehouse"
+            ? "Nhân viên kho"
+            : "Nhân viên",
       }));
     } catch (error) {
       console.error('Get all employees error:', error);
@@ -23,8 +29,8 @@ const employeeService = {
 
   getEmployeeById: async (id) => {
     try {
-      const response = await axiosInstance.get(`/user/get/${id}`);
-      const user = response.data;
+      const resp = await axiosInstance.get(`/api/employees/${id}`);
+      const user = resp && resp.errCode === 0 ? resp.data : null;
       return {
         id: user.MaTaiKhoan,
         employeeCode: `NV${user.MaTaiKhoan.toString().padStart(3, '0')}`,
@@ -47,13 +53,13 @@ const employeeService = {
         'Nhân viên kho': 'warehouse'
       };
 
-      const response = await axiosInstance.post('/user/create', {
+      const resp = await axiosInstance.post('/api/employees', {
         TenTaiKhoan: employeeData.username,
         MatKhau: employeeData.password,
-        Role: roleMapping[employeeData.role] || 'seller'
+        Role: roleMapping[employeeData.role] || "seller",
       });
 
-      return response.data;
+      return resp;
     } catch (error) {
       console.error('Create employee error:', error);
       throw error;
@@ -62,7 +68,8 @@ const employeeService = {
 
   deleteEmployee: async (id) => {
     try {
-      await axiosInstance.delete(`/user/delete/${id}`);
+      const resp = await axiosInstance.delete(`/api/employees/${id}`);
+      return resp;
     } catch (error) {
       console.error('Delete employee error:', error);  
       throw error;

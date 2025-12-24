@@ -118,7 +118,7 @@ const EmployeeDetail = () => {
 
   return (
     <div>
-      <div style={{ marginLeft: "270px" }}>
+      <div style={{ marginLeft: "20px" }}>
         <Topbar title="Thông tin chi tiết nhân viên" />
       </div>
 
@@ -143,75 +143,26 @@ const EmployeeDetail = () => {
               </Form.Item>
 
               <Form.Item name="username" label="Tên đăng nhập">
-                <Input
-                  prefix={<UserOutlined />}
-                  value={state.employeeData.usename}
-                  onChange={(e) =>
-                    handleChange("employeeData", {
-                      ...state.employeeData,
-                      username: e.target.value,
-                    })
-                  }
-                />
+                <Input prefix={<UserOutlined />} />
               </Form.Item>
               <Form.Item name="password" label="Mật khẩu">
-                <Input.Password
-                  prefix={<LockOutlined />}
-                  value={state.employeeData.password}
-                  onChange={(e) =>
-                    handleChange("employeeData", {
-                      ...state.employeeData,
-                      password: e.target.value,
-                    })
-                  }
-                />
+                <Input.Password prefix={<LockOutlined />} />
               </Form.Item>
 
               <Form.Item name="email" label="E-mail">
-                <Input
-                  prefix={<MailOutlined />}
-                  value={state.employeeData.email}
-                  onChange={(e) =>
-                    handleChange("employeeData", {
-                      ...state.employeeData,
-                      email: e.target.value,
-                    })
-                  }
-                />
+                <Input prefix={<MailOutlined />} />
               </Form.Item>
 
               <Form.Item name="address" label="Địa chỉ">
-                <Input
-                  prefix={<EnvironmentOutlined />}
-                  value={state.employeeData.address}
-                  onChange={(e) =>
-                    handleChange("employeeData", {
-                      ...state.employeeData,
-                      address: e.target.value,
-                    })
-                  }
-                />
+                <Input prefix={<EnvironmentOutlined />} />
               </Form.Item>
 
               <Form.Item name="phone" label="Số điện thoại">
-                <Input
-                  prefix={<PhoneOutlined />}
-                  value={state.employeeData.phone}
-                  onChange={(e) =>
-                    handleChange("employeeData", {
-                      ...state.employeeData,
-                      phone: e.target.value,
-                    })
-                  }
-                />
+                <Input prefix={<PhoneOutlined />} />
               </Form.Item>
 
               <Form.Item name="role" label="Chức vụ">
-                <Select
-                  mode="multiple"
-                  defaultValue={initData.role}
-                  onChange={(value) => form.setFieldsValue({ role: value })}
-                >
+                <Select>
                   <Option value="Quản lý cửa hàng">Quản lý cửa hàng</Option>
                   <Option value="Quản lý sản phẩm">Quản lý sản phẩm</Option>
                   <Option value="Quản lý đơn hàng">Quản lý đơn hàng</Option>

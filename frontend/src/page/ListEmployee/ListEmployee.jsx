@@ -195,6 +195,61 @@ const ListEmployee = () => {
               onClick: () => navigate(`/employee-detail/${record.id}`),
             })}
           />
+
+          {/* Add Employee Modal */}
+          <Modal
+            title="Thêm nhân viên"
+            open={params.isModalVisible}
+            onCancel={() => handleChange("isModalVisible", false)}
+            footer={null}
+          >
+            <Form form={form} layout="vertical" onFinish={handleAddEmployee}>
+              <Form.Item
+                name="username"
+                label="Tên đăng nhập"
+                rules={[{ required: true, message: "Vui lòng nhập tên đăng nhập" }]}
+              >
+                <Input />
+              </Form.Item>
+
+              <Form.Item
+                name="password"
+                label="Mật khẩu"
+                rules={[{ required: true, message: "Vui lòng nhập mật khẩu" }]}
+              >
+                <Input.Password />
+              </Form.Item>
+
+              <Form.Item name="role" label="Chức vụ" rules={[{ required: true }]}>
+                <Select>
+                  <Select.Option value="Quản lý">Quản lý</Select.Option>
+                  <Select.Option value="Nhân viên bán hàng">Nhân viên bán hàng</Select.Option>
+                  <Select.Option value="Nhân viên kho">Nhân viên kho</Select.Option>
+                </Select>
+              </Form.Item>
+
+              <Form.Item>
+                <div style={{ display: "flex", justifyContent: "flex-end", gap: 8 }}>
+                  <Button onClick={() => handleChange("isModalVisible", false)}>Hủy</Button>
+                  <Button type="primary" htmlType="submit" loading={loading}>
+                    Tạo
+                  </Button>
+                </div>
+              </Form.Item>
+            </Form>
+          </Modal>
+
+          {/* Delete Selected Confirmation Modal */}
+          <Modal
+            title="Xác nhận xóa"
+            open={params.isDeleteModalVisible}
+            onOk={handleConfirmDelete}
+            onCancel={() => handleChange("isDeleteModalVisible", false)}
+            okText="Xóa"
+            okButtonProps={{ danger: true }}
+          >
+            <p>Bạn có chắc muốn xóa {params.selectedRowKeys.length} nhân viên đã chọn không?</p>
+          </Modal>
         </div>
       </div>
     </ConfigProvider>
