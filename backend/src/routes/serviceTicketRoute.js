@@ -17,18 +17,21 @@ const initServiceTicketRoute = (app) => {
     verifyRole.checkPermission(["admin", "seller"]),
     controller.getById
   );
+  
   router.post(
     "/api/service-tickets/create",
     verifyRole.verifyToken,
-    verifyRole.checkPermission(["seller"]),
+    verifyRole.checkPermission(["admin", "seller"]), 
     controller.create
   );
+
   router.post(
     "/api/service-tickets/status",
     verifyRole.verifyToken,
-    verifyRole.checkPermission(["seller"]),
+    verifyRole.checkPermission(["admin", "seller"]),
     controller.updateStatus
   );
+
   router.post(
     "/api/service-tickets/delete",
     verifyRole.verifyToken,

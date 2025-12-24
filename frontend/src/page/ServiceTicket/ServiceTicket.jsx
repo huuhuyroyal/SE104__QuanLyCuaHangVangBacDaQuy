@@ -11,7 +11,6 @@ import {
   Col,
   message,
   Tag,
-  Space,
   Descriptions,
 } from "antd";
 import {
@@ -30,13 +29,19 @@ const ServiceTicket = () => {
   const [loading, setLoading] = useState(false);
   const [customers, setCustomers] = useState([]);
   const [serviceTypes, setServiceTypes] = useState([]);
+  
+  // Search state with debounce
   const [searchText, setSearchText] = useState("");
+  const [searchTimeout, setSearchTimeout] = useState(null);
 
   // Modal states
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [selectedTicket, setSelectedTicket] = useState(null);
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
+
+  // State cho trạng thái mới trong modal chi tiết
+  const [targetStatus, setTargetStatus] = useState("");
 
   // Form & Items
   const [form] = Form.useForm();
@@ -72,6 +77,22 @@ const ServiceTicket = () => {
     }
   };
 
+  // Handle Search with Debounce
+  const handleSearchChange = (e) => {
+    const value = e.target.value;
+    setSearchText(value);
+
+    if (searchTimeout) {
+      clearTimeout(searchTimeout);
+    }
+
+    const newTimeout = setTimeout(() => {
+      fetchData(value);
+    }, 500);
+
+    setSearchTimeout(newTimeout);
+  };
+
   // Calculate totals based on items
   const calculateTotals = (currentItems) => {
     const total = currentItems.reduce(
@@ -90,10 +111,9 @@ const ServiceTicket = () => {
   };
 
   const handleAddItem = () => {
-    if (!checkActionPermission(["seller"], false))
-      return message.error(
-        "Liên hệ người bán hàng để thực hiện xóa phiếu dịch vụ"
-      );
+    if (!checkActionPermission(["seller", "admin"], false))
+      return message.error("Bạn không có quyền thực hiện chức năng này");
+
     setItems([
       ...items,
       {
@@ -103,44 +123,36 @@ const ServiceTicket = () => {
         DonGiaDuocTinh: 0,
         ThanhTien: 0,
         TraTruoc: 0,
+        PhanTramTraTruoc: 0, 
       },
     ]);
   };
 
   const handleItemChange = (index, field, value) => {
-    if (!checkActionPermission(["seller"], false))
-      return message.error(
-        "Liên hệ người bán hàng để thực hiện cập nhật phiếu dịch vụ"
-      );
+    if (!checkActionPermission(["seller", "admin"], false))
+      return message.error("Bạn không có quyền cập nhật phiếu dịch vụ");
+
     const newItems = [...items];
     const item = { ...newItems[index], [field]: value };
 
-    // Logic when Service Type changes
     if (field === "MaLoaiDV") {
       const type = serviceTypes.find((t) => t.MaLoaiDV === value);
       if (type) {
         item.DonGiaDuocTinh = type.DonGiaDV;
-        item.PhanTramTraTruoc = type.PhanTramTraTruoc; // Keep hidden for calc
+        item.PhanTramTraTruoc = type.PhanTramTraTruoc;
       }
     }
 
-    // Recalculate line totals
-    if (
-      field === "MaLoaiDV" ||
-      field === "SoLuong" ||
-      field === "DonGiaDuocTinh"
-    ) {
+    if (field === "MaLoaiDV" || field === "SoLuong" || field === "DonGiaDuocTinh") {
       item.ThanhTien = item.SoLuong * item.DonGiaDuocTinh;
-      // Calculate prepaid based on percentage if available
       const type = serviceTypes.find((t) => t.MaLoaiDV === item.MaLoaiDV);
-      const percent = type ? type.PhanTramTraTruoc : 0;
-      item.TraTruoc = (item.ThanhTien * percent) / 100;
+      const percent = type ? type.PhanTramTraTruoc : (item.PhanTramTraTruoc || 0);
+      item.TraTruoc = item.ThanhTien * percent;
     }
 
     newItems[index] = item;
     setItems(newItems);
 
-    // Update Form Totals
     const totals = calculateTotals(newItems);
     form.setFieldsValue(totals);
   };
@@ -157,8 +169,7 @@ const ServiceTicket = () => {
       const values = await form.validateFields();
 
       if (items.length === 0) {
-        message.error("Vui lòng thêm ít nhất một dịch vụ vào danh sách!");
-        return;
+        return message.error("Vui lòng thêm ít nhất một dịch vụ vào danh sách!");
       }
 
       const hasInvalidItem = items.some(
@@ -166,21 +177,26 @@ const ServiceTicket = () => {
       );
 
       if (hasInvalidItem) {
-        message.error(
+        return message.error(
           "Vui lòng chọn 'Loại dịch vụ' và nhập 'Số lượng' cho tất cả các dòng!"
         );
-        return;
+      }
+
+      let finalDateStr;
+      if (values.NgayLap) {
+        const timePart = new Date().toLocaleTimeString('en-GB');
+        finalDateStr = `${values.NgayLap} ${timePart}`;
+      } else {
+         const now = new Date();
+         const offsetMs = now.getTimezoneOffset() * 60 * 1000;
+         const msLocal = now.getTime() - offsetMs;
+         finalDateStr = new Date(msLocal).toISOString().slice(0, 19).replace("T", " ");
       }
 
       const payload = {
         ...values,
         items: items,
-        NgayLap: values.NgayLap
-          ? new Date(values.NgayLap)
-              .toISOString()
-              .slice(0, 19)
-              .replace("T", " ")
-          : new Date().toISOString().slice(0, 19).replace("T", " "),
+        NgayLap: finalDateStr,
         TinhTrang: "Đang xử lý",
       };
 
@@ -197,16 +213,18 @@ const ServiceTicket = () => {
       }
     } catch (error) {
       console.error("Save failed:", error);
-      // If it's not a validation error (validation errors have errorFields), show a generic message
       if (!error.errorFields) {
-        message.error("Đã xảy ra lỗi khi lưu phiếu.");
+        message.error("Đã xảy ra lỗi khi lưu phiếu: " + error.message);
       }
     }
   };
+
   const handleDelete = async () => {
     if (!checkActionPermission(["admin"], false))
-      return message.error("Liên hệ admin để thực hiện xóa phiếu dịch vụ");
+      return message.error("Chỉ Admin mới có quyền xóa phiếu dịch vụ");
+
     if (selectedRowKeys.length === 0) return;
+
     Modal.confirm({
       title: "Xóa phiếu",
       content: `Bạn có chắc muốn xóa ${selectedRowKeys.length} phiếu?`,
@@ -227,24 +245,30 @@ const ServiceTicket = () => {
     const res = await ticketService.getServiceTicketById(record.SoPhieuDV);
     if (res.errCode === 0) {
       setSelectedTicket(res.data);
+      // Đặt trạng thái hiện tại vào state để hiển thị trong Select
+      setTargetStatus(res.data.ticket.TinhTrang);
       setIsDetailOpen(true);
     }
   };
 
-  const handleUpdateStatus = async (status) => {
-    if (!checkActionPermission(["seller"], false))
-      return message.error(
-        "Liên hệ người bán hàng để thực hiện cập nhật trạng thái phiếu dịch vụ"
-      );
+  const handleUpdateStatus = async () => {
+    if (!checkActionPermission(["seller", "admin"], false))
+      return message.error("Bạn không có quyền cập nhật trạng thái phiếu dịch vụ");
+
     if (!selectedTicket) return;
+    
+    // Sử dụng targetStatus từ Select
     const res = await ticketService.updateServiceTicketStatus(
       selectedTicket.ticket.SoPhieuDV,
-      status
+      targetStatus
     );
+    
     if (res.errCode === 0) {
-      message.success("Đã cập nhật trạng thái");
+      message.success(`Đã cập nhật trạng thái thành: ${targetStatus}`);
       setIsDetailOpen(false);
       fetchData();
+    } else {
+      message.error(res.message || "Cập nhật thất bại");
     }
   };
 
@@ -253,6 +277,15 @@ const ServiceTicket = () => {
       style: "currency",
       currency: "VND",
     }).format(val);
+
+  const getStatusColor = (status) => {
+    switch(status) {
+      case 'Hoàn thành': return 'green';
+      case 'Đã hủy': return 'red';
+      case 'Đã giao': return 'blue';
+      default: return 'orange';
+    }
+  };
 
   const columns = [
     { title: "Số Phiếu", dataIndex: "SoPhieuDV", key: "SoPhieuDV" },
@@ -285,7 +318,7 @@ const ServiceTicket = () => {
       title: "Tình trạng",
       dataIndex: "TinhTrang",
       render: (val) => (
-        <Tag color={val === "Hoàn thành" ? "green" : "orange"}>{val}</Tag>
+        <Tag color={getStatusColor(val)}>{val}</Tag>
       ),
     },
     {
@@ -308,10 +341,8 @@ const ServiceTicket = () => {
         <Input.Search
           placeholder="Tìm theo mã phiếu hoặc tên KH..."
           style={{ width: 300 }}
-          onChange={(e) => {
-            setSearchText(e.target.value);
-            fetchData(e.target.value);
-          }}
+          onChange={handleSearchChange} 
+          value={searchText}
         />
         <div className="add-section">
           <Button
@@ -326,10 +357,8 @@ const ServiceTicket = () => {
             type="primary"
             icon={<PlusOutlined />}
             onClick={() => {
-              if (!checkActionPermission(["seller"], false))
-                return message.error(
-                  "Liên hệ người bán hàng để thực hiện tạo phiếu dịch vụ"
-                );
+              if (!checkActionPermission(["seller", "admin"], false))
+                return message.error("Bạn không có quyền tạo phiếu dịch vụ");
               setIsCreateOpen(true);
               form.resetFields();
               setItems([]);
@@ -404,7 +433,6 @@ const ServiceTicket = () => {
             </Col>
           </Row>
 
-          {/* ITEMS LIST */}
           <div
             style={{
               marginBottom: 16,
@@ -541,7 +569,7 @@ const ServiceTicket = () => {
         </Form>
       </Modal>
 
-      {/* DETAIL MODAL */}
+      {/* DETAIL MODAL - Updated Footer */}
       <Modal
         title="Chi tiết phiếu"
         open={isDetailOpen}
@@ -550,13 +578,29 @@ const ServiceTicket = () => {
           <Button key="print" icon={<PrinterOutlined />}>
             In phiếu
           </Button>,
-          <Button
-            key="complete"
-            type="primary"
-            onClick={() => handleUpdateStatus("Hoàn thành")}
-          >
-            Hoàn thành
-          </Button>,
+          // Group Select và Button Cập nhật
+          <div key="status-controls" style={{ display: 'inline-flex', gap: 8, margin: '0 8px' }}>
+            <Select 
+              value={targetStatus}
+              onChange={setTargetStatus}
+              style={{ width: 140, textAlign: 'left' }}
+              options={[
+                { value: "Đang xử lý", label: "Đang xử lý" },
+                { value: "Hoàn thành", label: "Hoàn thành" },
+                { value: "Đã giao", label: "Đã giao" },
+                { value: "Đã hủy", label: "Đã hủy" },
+              ]}
+            />
+            <Button
+              key="update-btn"
+              type="primary"
+              onClick={handleUpdateStatus}
+              // Disable nút cập nhật nếu chưa chọn status hoặc status không đổi
+              disabled={!targetStatus || targetStatus === selectedTicket?.ticket?.TinhTrang}
+            >
+              Cập nhật
+            </Button>
+          </div>,
           <Button key="close" onClick={() => setIsDetailOpen(false)}>
             Đóng
           </Button>,
@@ -579,7 +623,9 @@ const ServiceTicket = () => {
                 {selectedTicket.ticket.SoDienThoai}
               </Descriptions.Item>
               <Descriptions.Item label="Tình trạng">
-                <Tag>{selectedTicket.ticket.TinhTrang}</Tag>
+                <Tag color={getStatusColor(selectedTicket.ticket.TinhTrang)}>
+                  {selectedTicket.ticket.TinhTrang}
+                </Tag>
               </Descriptions.Item>
             </Descriptions>
             <br />
