@@ -10,13 +10,13 @@ const initInvoiceRoute = (app) => {
   router.get(
     "/api/invoices",
     verifyRole.verifyToken,
-    verifyRole.checkPermission(["admin", "seller"]),
+    verifyRole.checkPermission(["admin", "seller", "warehouse"]),
     invoiceController.getInvoices
   );
   router.get(
     "/api/invoices/:id",
     verifyRole.verifyToken,
-    verifyRole.checkPermission(["admin", "seller"]),
+    verifyRole.checkPermission(["admin", "seller", "warehouse"]),
     invoiceController.getInvoiceById
   );
   router.post(

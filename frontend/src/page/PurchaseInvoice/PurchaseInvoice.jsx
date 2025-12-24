@@ -25,7 +25,7 @@ import {
   deletePurchasesService,
   getPurchaseByIdService,
 } from "../../services/purchaseService";
-import getSuppliersService from "../../services/supplierService";
+import supplierService from "../../services/supplierService";
 import getAllProductsService from "../../services/productService";
 import "./PurchaseInvoice.css";
 import { checkActionPermission } from "../../utils/checkRole";
@@ -69,7 +69,7 @@ const PurchaseInvoice = () => {
 
   const fetchSuppliers = async () => {
     try {
-      const res = await getSuppliersService();
+      const res = await supplierService.getSuppliers();
       if (res && res.data) setSuppliers(res.data);
     } catch (err) {
       console.error(err);
@@ -428,7 +428,7 @@ const PurchaseInvoice = () => {
                   const currentName = form.getFieldValue("TenNCC") || "";
                   setSupplierTempName(currentName);
                   try {
-                    const res = await getSuppliersService();
+                    const res = await supplierService.getSuppliers();
                     if (res && res.data) setSuppliers(res.data);
                   } catch (err) {
                     console.error("Failed to load suppliers", err);
@@ -513,59 +513,44 @@ const PurchaseInvoice = () => {
                       {it.TenSanPham || it.MaSanPham || "(Chưa chọn)"}
                     </div>
                     <div className="item-meta">
-                      Đơn giá: {Number(it.DonGiaMua || 0).toLocaleString()} đ
+                      Đơn giá mua:
+                      <InputNumber
+                        min={0}
+                        style={{ width: 140, marginLeft: 8 }}
+                        value={it.DonGiaMua}
+                        onChange={(val) =>
+                          handleItemChange(idx, "DonGiaMua", Number(val || 0))
+                        }
+                        formatter={(value) =>
+                          `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                        }
+                        parser={(value) => value.replace(/,/g, "")}
+                      />
                     </div>
-                    <div className="item-meta">
+                    <div className="item-meta" style={{ marginTop: 6 }}>
+                      Số lượng:
+                      <InputNumber
+                        min={0}
+                        style={{ width: 120, marginLeft: 8 }}
+                        value={it.SoLuongMua}
+                        onChange={(val) =>
+                          handleItemChange(idx, "SoLuongMua", Number(val || 0))
+                        }
+                      />
+                    </div>
+                    <div className="item-meta" style={{ marginTop: 6 }}>
                       Thành tiền:{" "}
                       <b style={{ color: "#0066cc" }}>
                         {Number(it.ThanhTien || 0).toLocaleString()} đ
                       </b>
                     </div>
-                    <div className="item-actions">
-                      <Button
-                        size="small"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleItemChange(
-                            idx,
-                            "SoLuongMua",
-                            Math.max(0, (it.SoLuongMua || 0) - 1)
-                          );
-                        }}
-                      >
-                        -
-                      </Button>
-                      <Input
-                        style={{ width: 60, textAlign: "center" }}
-                        value={it.SoLuongMua}
-                        onChange={(e) =>
-                          handleItemChange(
-                            idx,
-                            "SoLuongMua",
-                            Number(e.target.value || 0)
-                          )
-                        }
-                      />
-                      <Button
-                        size="small"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleItemChange(
-                            idx,
-                            "SoLuongMua",
-                            (it.SoLuongMua || 0) + 1
-                          );
-                        }}
-                      >
-                        +
-                      </Button>
+                    <div className="item-actions" style={{ marginTop: 8 }}>
                       <Button
                         danger
                         onClick={(e) => {
                           e.stopPropagation();
                           removeItem(idx);
                         }}
-                        style={{ marginLeft: 8 }}
                       >
                         Xóa
                       </Button>
