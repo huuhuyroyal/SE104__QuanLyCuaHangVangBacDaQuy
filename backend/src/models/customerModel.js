@@ -1,22 +1,26 @@
-import { connection } from "../config/connectDB.js";
+import { DataTypes } from 'sequelize';
+import { sequelize } from '../config/database.js';
 
-const CustomerModel = {
-  getAll: async () => {
-    try {
-      const [rows] = await connection.execute(`SELECT MaKH, TenKH, SoDienThoai, DiaChi FROM khachhang ORDER BY TenKH`);
-      return rows;
-    } catch (error) {
-      throw error;
+const Customer = sequelize.define('KHACHHANG', {
+    MaKH: { 
+        type: DataTypes.STRING(50),
+        primaryKey: true,
+        allowNull: false
+    },
+    TenKH: { 
+        type: DataTypes.STRING(100),
+        allowNull: false
+    },
+    SoDienThoai: { 
+        type: DataTypes.STRING(15)
+    },
+    DiaChi: {
+        type: DataTypes.STRING(255)
     }
-  },
-  getById: async (maKH) => {
-    try {
-      const [rows] = await connection.execute(`SELECT MaKH, TenKH, SoDienThoai, DiaChi FROM khachhang WHERE MaKH = ?`, [maKH]);
-      return rows[0] || null;
-    } catch (error) {
-      throw error;
-    }
-  },
-};
+}, {
+    tableName: 'KHACHHANG', // Ép buộc dùng đúng tên trong SQL
+    timestamps: true,      // Database của bạn có cột này nên để true
+    freezeTableName: true  // Không tự ý thêm chữ 's'
+});
 
-export default CustomerModel;
+export default Customer;

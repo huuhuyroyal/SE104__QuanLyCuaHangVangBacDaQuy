@@ -12,6 +12,7 @@
   "license": "ISC",
   "type": "module",
   "dependencies": {
+    "sequelize": "^6.32.1",
     "cloudinary": "^1.41.3",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
@@ -20,7 +21,8 @@
     "jsonwebtoken": "^9.0.3",
     "multer": "^2.0.2",
     "multer-storage-cloudinary": "^4.0.0",
-    "mysql2": "^3.15.3"
+    "mysql2": "^3.15.3",
+    "uuid": "^13.0.0"
   },
   "devDependencies": {
     "morgan": "^1.10.1",
