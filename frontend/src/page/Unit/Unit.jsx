@@ -9,9 +9,15 @@ import {
   Popconfirm,
   Space,
 } from "antd";
-import { FileTextOutlined, PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
+import {
+  FileTextOutlined,
+  PlusOutlined,
+  EditOutlined,
+  DeleteOutlined,
+} from "@ant-design/icons";
 import unitService from "../../services/unitService";
 import "./Unit.css";
+import { checkActionPermission } from "../../utils/checkRole";
 
 const Unit = () => {
   const [data, setData] = useState([]);
@@ -44,7 +50,9 @@ const Unit = () => {
         message.error("Lỗi lấy dữ liệu đơn vị tính");
       }
     } catch (error) {
-      message.error("Không thể kết nối Server! Kiểm tra lại Backend xem đã chạy chưa?");
+      message.error(
+        "Không thể kết nối Server! Kiểm tra lại Backend xem đã chạy chưa?"
+      );
     } finally {
       setLoading(false);
     }
@@ -75,6 +83,7 @@ const Unit = () => {
 
   // Mở modal thêm mới
   const handleAddUnit = () => {
+    if (!checkActionPermission(["admin", "warehouse"])) return;
     setIsEditMode(false);
     setSelectedUnit(null);
     form.resetFields();
@@ -83,6 +92,7 @@ const Unit = () => {
 
   // Mở modal chỉnh sửa
   const handleEditUnit = (record) => {
+    if (!checkActionPermission(["admin", "warehouse"])) return;
     setIsEditMode(true);
     setSelectedUnit(record);
     form.setFieldsValue({
@@ -171,29 +181,45 @@ const Unit = () => {
       title: "Hành động",
       key: "action",
       width: 150,
-      render: (_, record) => (
-        <Space size="middle">
-          <Button
-            type="primary"
-            icon={<EditOutlined />}
-            onClick={() => handleEditUnit(record)}
-            size="small"
-          >
-            Sửa
-          </Button>
-          <Popconfirm
-            title="Xóa đơn vị tính"
-            description="Bạn có chắc chắn muốn xóa đơn vị tính này?"
-            onConfirm={() => handleDeleteUnit(record.MaDVT)}
-            okText="Có"
-            cancelText="Không"
-          >
-            <Button danger icon={<DeleteOutlined />} size="small">
-              Xóa
+      render: (_, record) => {
+        const allowDelete = checkActionPermission(["admin"], false);
+        return (
+          <Space size="middle">
+            <Button
+              type="primary"
+              icon={<EditOutlined />}
+              onClick={() => handleEditUnit(record)}
+              size="small"
+            >
+              Sửa
             </Button>
-          </Popconfirm>
-        </Space>
-      ),
+            {allowDelete ? (
+              <Popconfirm
+                title="Xóa đơn vị tính"
+                description="Bạn có chắc chắn muốn xóa đơn vị tính này?"
+                onConfirm={() => handleDeleteUnit(record.MaDVT)}
+                okText="Có"
+                cancelText="Không"
+              >
+                <Button danger icon={<DeleteOutlined />} size="small">
+                  Xóa
+                </Button>
+              </Popconfirm>
+            ) : (
+              <Button
+                danger
+                icon={<DeleteOutlined />}
+                size="small"
+                onClick={() =>
+                  message.error("Liên hệ admin để xóa đơn vị tính này")
+                }
+              >
+                Xóa
+              </Button>
+            )}
+          </Space>
+        );
+      },
     },
   ];
 
@@ -235,11 +261,7 @@ const Unit = () => {
         okText="Lưu"
         cancelText="Hủy"
       >
-        <Form
-          form={form}
-          layout="vertical"
-          onFinish={handleSubmit}
-        >
+        <Form form={form} layout="vertical" onFinish={handleSubmit}>
           <Form.Item
             label="Mã Đơn Vị Tính"
             name="maDVT"
@@ -247,10 +269,7 @@ const Unit = () => {
               { required: true, message: "Vui lòng nhập mã đơn vị tính" },
             ]}
           >
-            <Input
-              placeholder="Ví dụ: DVT11"
-              disabled={isEditMode}
-            />
+            <Input placeholder="Ví dụ: DVT11" disabled={isEditMode} />
           </Form.Item>
 
           <Form.Item
