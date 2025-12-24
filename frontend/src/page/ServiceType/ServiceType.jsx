@@ -88,6 +88,7 @@ const ServiceType = () => {
   // Handle Form Submit
   const handleOk = async () => {
     try {
+      // Validate toàn bộ form trước khi gửi
       const values = await form.validateFields();
       setLoading(true);
 
@@ -104,6 +105,11 @@ const ServiceType = () => {
       }
     } catch (error) {
       console.log("Validate Failed:", error);
+      // Hiển thị thông báo lỗi đầu tiên (nếu có) bằng popup
+      if (error.errorFields && error.errorFields.length > 0) {
+         const firstError = error.errorFields[0].errors[0];
+         message.error(firstError);
+      }
     } finally {
       setLoading(false);
     }
@@ -139,10 +145,10 @@ const ServiceType = () => {
       render: (val) => <span style={{ color: '#1677ff' }}>{formatCurrency(val)}</span> 
     },
     { 
-      title: "Trả trước (%)", 
+      title: "Trả trước", 
       dataIndex: "PhanTramTraTruoc", 
       align: 'center',
-      render: (val) => <Tag color="green">{val}%</Tag> 
+      render: (val) => <Tag color="green">{(val * 100).toFixed(0)}%</Tag> 
     },
     {
       title: "Hành động",
@@ -232,28 +238,36 @@ const ServiceType = () => {
                 />
               </Form.Item>
 
+              {/* CẬP NHẬT PHẦN NÀY: Thêm validate > 1 */}
               <Form.Item
                 name="PhanTramTraTruoc"
-                label="Phần trăm trả trước (%)"
+                label="Tỉ lệ trả trước (0.5 = 50%)"
                 style={{ flex: 1 }}
                 rules={[
-                  { required: true, message: "Nhập % trả trước" },
+                  { required: true, message: "Nhập tỉ lệ trả trước" },
                   {
                     validator: (_, value) => {
-                      if (value !== undefined && value < 50) {
-                        return Promise.reject(new Error("Phần trăm trả trước phải >= 50%"));
+                      if (value !== undefined && value !== null) {
+                        if (value < 0.5) {
+                          return Promise.reject(new Error("Phải >= 0.5 (50%)"));
+                        }
+                        // Thêm điều kiện kiểm tra nếu > 1
+                        if (value > 1) {
+                          return Promise.reject(new Error("Không được lớn hơn 1 (100%)"));
+                        }
                       }
                       return Promise.resolve();
                     },
                   },
                 ]}
-                initialValue={50}
+                initialValue={0.5}
               >
                 <InputNumber 
                   style={{ width: '100%' }} 
-                  min={0}
-                  max={100} 
-                  placeholder="Ví dụ: 50"
+                  min={0} 
+                  // Bỏ max={1} để người dùng có thể nhập số lớn hơn và thấy thông báo lỗi
+                  step={0.1}
+                  placeholder="Ví dụ: 0.5"
                 />
               </Form.Item>
             </div>
