@@ -1,35 +1,16 @@
 import express from "express";
-import serviceTypeController from "../controllers/serviceTypeController.js";
-import verifyRole from "../middleware/authMiddleware.js";
+import supplierController from "../controllers/supplierController.js";
 
 const router = express.Router();
 
-const initServiceTypeRoute = (app) => {
-  router.get(
-    "/api/service-types",
-    verifyRole.verifyToken,
-    verifyRole.checkPermission(["admin", "seller"]),
-    serviceTypeController.getAll
-  );
-  router.post(
-    "/api/service-types/create",
-    verifyRole.verifyToken,
-    verifyRole.checkPermission(["admin"]),
-    serviceTypeController.create
-  );
-  router.post(
-    "/api/service-types/update",
-    verifyRole.verifyToken,
-    verifyRole.checkPermission(["admin"]),
-    serviceTypeController.update
-  );
-  router.post(
-    "/api/service-types/delete",
-    verifyRole.verifyToken,
-    verifyRole.checkPermission(["admin"]),
-    serviceTypeController.delete
-  );
+const initSupplierRoute = (app) => {
+  router.get("/api/suppliers", supplierController.getSuppliers);
+  router.get("/api/suppliers/search", supplierController.searchSuppliers);
+  router.get("/api/suppliers/:id", supplierController.getSupplierById);
+  router.post("/api/suppliers", supplierController.createSupplier);
+  router.put("/api/suppliers/:id", supplierController.updateSupplier);
+  router.delete("/api/suppliers/:id", supplierController.deleteSupplier);
   return app.use("/", router);
 };
 
-export default initServiceTypeRoute;
+export default initSupplierRoute;
