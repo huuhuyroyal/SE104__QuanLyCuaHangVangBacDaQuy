@@ -3,17 +3,17 @@ import EmployeeService from "../service/employeeService.js";
 const getAllEmployees = async (req, res) => {
   try {
     const response = await EmployeeService.getAllEmployeesService();
+    console.log("Dữ liệu gửi về FE:", response); // Kiểm tra dòng này ở terminal backend
     return res.status(200).json(response);
   } catch (error) {
-    console.error(error);
     return res.status(500).json({ errCode: -1, message: "Lỗi Server" });
   }
 };
 
 const getEmployeeDetail = async (req, res) => {
   try {
-    const { id } = req.params;
-    const response = await EmployeeService.getEmployeeDetailService(id);
+    const { MaTaiKhoan } = req.params;
+    const response = await EmployeeService.getEmployeeDetailService(MaTaiKhoan);
     return res.status(200).json(response);
   } catch (error) {
     console.error(error);
@@ -34,8 +34,8 @@ const createEmployee = async (req, res) => {
 
 const deleteEmployee = async (req, res) => {
   try {
-    const { id } = req.params;
-    const response = await EmployeeService.deleteEmployeeService(id);
+    const { MaTaiKhoan } = req.params;
+    const response = await EmployeeService.deleteEmployeeService(MaTaiKhoan);
     return res.status(200).json(response);
   } catch (error) {
     console.error(error);

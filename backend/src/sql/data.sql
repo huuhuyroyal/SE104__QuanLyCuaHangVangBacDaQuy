@@ -184,6 +184,7 @@ INSERT INTO TAIKHOAN (MaTaiKhoan, TenTaiKhoan, MatKhau, Role) VALUES
 (2, 'thukho', '123456', 'warehouse'),
 (3, 'banhang', '123456', 'seller');
 
+
 -- khách hàng
 INSERT INTO KHACHHANG (MaKH, TenKH, SoDienThoai, DiaChi) VALUES
 ('KH01', N'Nguyễn Văn An', '0909111222', N'Quận 1'),

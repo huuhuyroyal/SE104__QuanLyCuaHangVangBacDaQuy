@@ -1,94 +1,84 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import "./DetailEmployee.css";
 import Topbar from "../../components/Topbar/Topbar";
 import avatar from "../../assets/customer1.jpg";
 import {
   CopyOutlined,
-  MailOutlined,
-  EnvironmentOutlined,
-  PhoneOutlined,
   ClockCircleOutlined,
   MenuOutlined,
   ShoppingOutlined,
   ShoppingCartOutlined,
-  LockOutlined,
   UserOutlined,
 } from "@ant-design/icons";
-import { Form, Input, Button, DatePicker, Select } from "antd";
+import { Form, Input, Button, DatePicker, Select, message, Spin } from "antd";
+import employeeService from "../../services/employeeService";
 
 const { Option } = Select;
 
 const EmployeeDetail = () => {
+  const { id } = useParams();
+  const navigate = useNavigate();
   const [form] = Form.useForm();
-
-  const initData = {
-    id: "ID-011221",
-    username: "stafflinda@123",
-    password: "stafflinda@123",
-    email: "lindablair@gmail.com",
-    address: "1833 Bel Meadow Drive, Fontana, California 92335, USA",
-    phone: "050 414 8778",
-    lastActive: "1 ngày trước",
-    name: "Linda Blair",
-    role: "Nhân viên",
-  };
-
-  const orders = [
-    {
-      id: "302002",
-      product: "Nhẫn Kim cương Vàng",
-      extra: "+3 sản phẩm khác",
-      total: "$121.00",
-      status: "Đang xử lý",
-      date: "12 Dec 2023",
-      statusClass: "processing",
-    },
-    {
-      id: "301901",
-      product: "Nhẫn Kim cương Vàng",
-      extra: "+3 sản phẩm khác",
-      total: "$590.00",
-      status: "Đang xử lý",
-      date: "1 Dec 2023",
-      statusClass: "processing",
-    },
-    {
-      id: "301900",
-      product: "Nhẫn Kim cương Vàng",
-      extra: "",
-      total: "$125.00",
-      status: "Hoàn thành",
-      date: "10 Nov 2023",
-      statusClass: "completed",
-    },
-    {
-      id: "301881",
-      product: "Nhẫn Kim cương Vàng",
-      extra: "+3 sản phẩm khác",
-      total: "$348.00",
-      status: "Hoàn thành",
-      date: "2 Nov 2023",
-      statusClass: "completed",
-    },
-    {
-      id: "301643",
-      product: "Nhẫn Kim cương Vàng",
-      extra: "",
-      total: "$607.00",
-      status: "Hoàn thành",
-      date: "7 Sep 2023",
-      statusClass: "completed",
-    },
-  ];
+  const [loading, setLoading] = useState(false);
+  const [isChanged, setIsChanged] = useState(false);
 
   const [state, setState] = useState({
-    employeeData: initData,
+    employeeData: {
+      MaTaiKhoan: "",
+      TenTaiKhoan: "",
+      role: "",
+    },
+    stats: {
+      doanhThu: 0,
+      soDonBan: 0,
+      soLuongBan: 0,
+    },
     filters: {
       date: null,
       dateString: "",
     },
-    filteredOrders: orders,
+    filteredOrders: [],
+    orders: [],
   });
+
+  // Fetch employee details from API
+  const fetchEmployeeDetails = async () => {
+      try {
+          setLoading(true);
+          const data = await employeeService.getEmployeeById(id);
+          
+          setState(prev => ({
+              ...prev,
+              employeeData: {
+                  MaTaiKhoan: data.MaTaiKhoan,
+                  TenTaiKhoan: data.TenTaiKhoan,
+                  role: data.Role, // Chú ý: Role từ DB thường viết hoa chữ R
+              },
+              stats: {
+                  // Khớp chính xác với tên cột từ SQL (Model trả về)
+                  doanhThu: data.DoanhThu || 0,
+                  soDonBan: data.SoDonBan || 0,
+                  soLuongBan: data.SoLuongBan || 0,
+              },
+              orders: data.salesHistory || [],
+              filteredOrders: data.salesHistory || [],
+          }));
+          // ... (phần form.setFieldsValue giữ nguyên)
+      } catch (error) {
+          message.error("Không tìm thấy nhân viên");
+          navigate("/ListEmployee");
+      } finally {
+          setLoading(false);
+      }
+  };
+
+  useEffect(() => {
+    if (id) {
+      fetchEmployeeDetails();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id]);
 
   const handleChange = (key, value) => {
     setState((prev) => ({
@@ -99,22 +89,49 @@ const EmployeeDetail = () => {
 
   const applyDateFilter = () => {
     const { dateString } = state.filters;
-    const filtered = dateString
-      ? orders.filter((order) => order.date === dateString)
-      : orders;
+    if (!dateString) {
+      handleChange("filteredOrders", state.orders);
+      return;
+    }
+    
+    // Format dateString để so sánh với date từ database
+    const filterDate = new Date(dateString).toLocaleDateString('vi-VN', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric'
+    });
+    
+    const filtered = state.orders.filter((order) => {
+      return order.date === filterDate;
+    });
     handleChange("filteredOrders", filtered);
   };
 
-  // Hàm xử lý gửi thông tin
   const handleSubmit = (values) => {
     console.log("Updated Values:", values);
-    alert("Cập nhật thông tin nhân viên thành công.");
+    message.success("Cập nhật thông tin nhân viên thành công.");
+    setIsChanged(false);
+    // TODO: Implement update API if needed
   };
 
-  const [isChanged, setIsChanged] = useState(false);
   const handleFormChange = () => {
-    setIsChanged(true); // Đánh dấu form đã thay đổi
+    setIsChanged(true);
   };
+
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('vi-VN', {
+      style: 'currency',
+      currency: 'VND'
+    }).format(amount);
+  };
+
+  if (loading && !state.employeeData.MaTaiKhoan) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+        <Spin size="large" />
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -128,45 +145,28 @@ const EmployeeDetail = () => {
             <div className="avatar-placeholder">
               <img src={avatar} alt="avatar-employee" />
             </div>
-            <h2 className="employee-name">{state.employeeData.name}</h2>
+            <h2 className="employee-name">{state.employeeData.TenTaiKhoan}</h2>
             <span className="status active">{state.employeeData.role}</span>
 
             <Form
               form={form}
               layout="vertical"
               onFinish={handleSubmit}
-              initialValues={state.employeeData}
-              onValuesChange={() => setIsChanged(true)}
+              onValuesChange={handleFormChange}
             >
-              <Form.Item name="id" label="Mã nhân viên">
+              <Form.Item name="MaTaiKhoan" label="Mã nhân viên">
                 <Input prefix={<CopyOutlined />} disabled />
               </Form.Item>
 
-              <Form.Item name="username" label="Tên đăng nhập">
+              <Form.Item name="TenTaiKhoan" label="Tên đăng nhập">
                 <Input prefix={<UserOutlined />} />
-              </Form.Item>
-              <Form.Item name="password" label="Mật khẩu">
-                <Input.Password prefix={<LockOutlined />} />
-              </Form.Item>
-
-              <Form.Item name="email" label="E-mail">
-                <Input prefix={<MailOutlined />} />
-              </Form.Item>
-
-              <Form.Item name="address" label="Địa chỉ">
-                <Input prefix={<EnvironmentOutlined />} />
-              </Form.Item>
-
-              <Form.Item name="phone" label="Số điện thoại">
-                <Input prefix={<PhoneOutlined />} />
               </Form.Item>
 
               <Form.Item name="role" label="Chức vụ">
                 <Select>
-                  <Option value="Quản lý cửa hàng">Quản lý cửa hàng</Option>
-                  <Option value="Quản lý sản phẩm">Quản lý sản phẩm</Option>
-                  <Option value="Quản lý đơn hàng">Quản lý đơn hàng</Option>
-                  <Option value="Quản lý khách hàng">Quản lý khách hàng</Option>
+                  <Option value="Quản lý">Quản lý</Option>
+                  <Option value="Nhân viên bán hàng">Nhân viên bán hàng</Option>
+                  <Option value="Nhân viên kho">Nhân viên kho</Option>
                 </Select>
               </Form.Item>
 
@@ -174,6 +174,7 @@ const EmployeeDetail = () => {
                 type="primary"
                 htmlType="submit"
                 className={`save-button ${isChanged ? "" : "disabled-button"}`}
+                disabled={!isChanged}
               >
                 Cập nhật
               </Button>
@@ -182,7 +183,6 @@ const EmployeeDetail = () => {
         </div>
 
         <div className="employee-container">
-          {/* Right Section */}
           <div className="employee-stats">
             {/* Card 1: Doanh thu */}
             <div className="stat-card">
@@ -193,11 +193,11 @@ const EmployeeDetail = () => {
               </div>
               <div>
                 <div className="stat-title">Doanh thu</div>
-                <div className="stat-value">120.000.000 đồng</div>
+                <div className="stat-value">{formatCurrency(state.stats.doanhThu)}</div>
               </div>
             </div>
 
-            {/* Card 2: Điểm */}
+            {/* Card 2: Số lượng bán */}
             <div className="stat-card">
               <div className="header">
                 <div className="icon-wrapper">
@@ -205,8 +205,8 @@ const EmployeeDetail = () => {
                 </div>
               </div>
               <div>
-                <div className="stat-title">Điểm thưởng</div>
-                <div className="stat-value">12.000</div>
+                <div className="stat-title">Số lượng bán</div>
+                <div className="stat-value">{state.stats.soLuongBan}</div>
               </div>
             </div>
 
@@ -219,15 +219,15 @@ const EmployeeDetail = () => {
               </div>
               <div className="stat-summary">
                 <div className="summary-item">
-                  <strong>10</strong>
+                  <strong>{state.stats.soDonBan}</strong>
                   <span>Tổng đơn hàng</span>
                 </div>
                 <div className="summary-item">
-                  <strong>2</strong>
+                  <strong>{state.orders.filter(o => o.statusClass === 'processing').length}</strong>
                   <span>Đang xử lý</span>
                 </div>
                 <div className="summary-item">
-                  <strong>8</strong>
+                  <strong>{state.orders.filter(o => o.statusClass === 'completed').length}</strong>
                   <span>Hoàn thành</span>
                 </div>
                 <div className="summary-item">
@@ -298,36 +298,52 @@ const EmployeeDetail = () => {
                   onClick={applyDateFilter}
                   icon={<MenuOutlined />}
                   style={{ backgroundColor: "#091057" }}
-                />
+                >
+                  Lọc
+                </Button>
               </div>
             </div>
-            <table className="history-table">
-              <thead>
-                <tr>
-                  <th>Mã đơn hàng</th>
-                  <th>Sản phẩm</th>
-                  <th>Tổng tiền</th>
-                  <th>Tình trạng</th>
-                  <th>Ngày đặt hàng</th>
-                </tr>
-              </thead>
-              <tbody>
-                {state.filteredOrders.map((order, index) => (
-                  <tr key={index}>
-                    <td className="order-id">{order.id}</td>
-                    <td>
-                      {order.product}{" "}
-                      <span className="extra">{order.extra}</span>
-                    </td>
-                    <td>{order.total}</td>
-                    <td className={`status ${order.statusClass}`}>
-                      {order.status}
-                    </td>
-                    <td>{order.date}</td>
+            {loading ? (
+              <div style={{ textAlign: 'center', padding: '20px' }}>
+                <Spin />
+              </div>
+            ) : (
+              <table className="history-table">
+                <thead>
+                  <tr>
+                    <th>Mã đơn hàng</th>
+                    <th>Sản phẩm</th>
+                    <th>Tổng tiền</th>
+                    <th>Tình trạng</th>
+                    <th>Ngày đặt hàng</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {state.filteredOrders.length === 0 ? (
+                    <tr>
+                      <td colSpan="5" style={{ textAlign: 'center', padding: '20px' }}>
+                        Không có đơn hàng nào
+                      </td>
+                    </tr>
+                  ) : (
+                    state.filteredOrders.map((order, index) => (
+                      <tr key={index}>
+                        <td className="order-id">{order.id}</td>
+                        <td>
+                          {order.product}{" "}
+                          {order.extra && <span className="extra">{order.extra}</span>}
+                        </td>
+                        <td>{order.total}</td>
+                        <td className={`status ${order.statusClass}`}>
+                          {order.status}
+                        </td>
+                        <td>{order.date}</td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            )}
           </div>
         </div>
       </div>

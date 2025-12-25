@@ -9,13 +9,13 @@ const initEmployeeRoute = (app) => {
   router.get("/api/employees", authMiddleware.checkPermission(["admin"]), employeeController.getAllEmployees);
 
   // Chi tiết nhân viên (thống kê)
-  router.get("/api/employees/:id", authMiddleware.checkPermission(["admin"]), employeeController.getEmployeeDetail);
+  router.get("/api/employees/:MaTaiKhoan", authMiddleware.checkPermission(["admin"]), employeeController.getEmployeeDetail);
 
   // Tạo tài khoản nhân viên (admin only)
   router.post("/api/employees", authMiddleware.checkPermission(["admin"]), employeeController.createEmployee);
 
   // Xóa nhân viên (admin only)
-  router.delete("/api/employees/:id", authMiddleware.checkPermission(["admin"]), employeeController.deleteEmployee);
+  router.delete("/api/employees/:MaTaiKhoan", authMiddleware.checkPermission(["admin"]), employeeController.deleteEmployee);
 
   return app.use("/", router);
 };
