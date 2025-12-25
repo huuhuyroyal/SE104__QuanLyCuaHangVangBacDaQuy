@@ -13,6 +13,7 @@
   "type": "module",
   "dependencies": {
     "sequelize": "^6.32.1",
+    "bcryptjs": "^3.0.3",
     "cloudinary": "^1.41.3",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
