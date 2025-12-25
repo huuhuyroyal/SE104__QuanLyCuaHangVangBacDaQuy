@@ -9,6 +9,8 @@ import PurchaseInvoice from "../page/PurchaseInvoice/PurchaseInvoice";
 import SupplierPage from "../page/Supplier/Supplier";
 import ServiceType from "../page/ServiceType/ServiceType";
 import ServiceTicket from "../page/ServiceTicket/ServiceTicket";
+import ListCustomer from "../page/ListCustomer/ListCustomer";
+import DetailCustomer from "../page/DetailCustomer/DetailCustomer";
 import Profile from "../page/Profile/Profile";
 import Title from "antd/es/skeleton/Title";
 
@@ -80,6 +82,22 @@ export const routes = [
     isShowSidebar: true,
   },
   {
+    path: "/customer-detail/:id",
+    component: DetailCustomer,
+    Title: "Chi tiết khách hàng",
+    isShowSidebar: true,
+  },
+  {
+    path: "/ListCustomer",
+    component: ListCustomer,
+    Title: "Quản lý khách hàng",
+    isShowSidebar: true,
+  },
+  {
+    // alias route kept for backward-compatibility
+    path: "/Customer",
+    component: ListCustomer,
+    Title: "Quản lý khách hàng",
     path: "/Profile",
     Title: "Quản lý tài khoản",
     component: Profile,
