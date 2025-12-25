@@ -6,7 +6,7 @@ import initProductRoute from "./src/routes/productRoute.js";
 import initUserRoute from "./src/routes/userRoute.js";
 import initDashboardRoute from "./src/routes/dashboardRoute.js";
 // --- IMPORT NEW ROUTE ---
-import initProductTypeRoute from "./src/routes/productTypeRoute.js"; 
+import initProductTypeRoute from "./src/routes/productTypeRoute.js";
 import initServiceTypeRoute from "./src/routes/serviceTypeRoute.js";
 
 import initUnitRoute from "./src/routes/unitRoute.js";
@@ -16,6 +16,9 @@ import initPurchaseRoute from "./src/routes/purchaseRoute.js";
 import initSupplierRoute from "./src/routes/supplierRoute.js";
 import initReportRoute from "./src/routes/reportRoute.js";
 import initServiceTicketRoute from "./src/routes/serviceTicketRoute.js";
+import initProfileRoutes from "./src/routes/profileRoute.js";
+import bcrypt from "bcryptjs";
+
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -37,14 +40,13 @@ initProductTypeRoute(app);
 initServiceTicketRoute(app);
 initUnitRoute(app);
 initServiceTypeRoute(app);
-
-
 initUnitRoute(app);
 initInvoiceRoute(app);
 initCustomerRoute(app);
 initPurchaseRoute(app);
 initSupplierRoute(app);
 initReportRoute(app);
+initProfileRoutes(app);
 // Kiểm tra kết nối DB
 connectDB();
 
