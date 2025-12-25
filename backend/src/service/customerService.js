@@ -1,68 +1,80 @@
-import { v4 as uuidv4 } from 'uuid';
-import { sequelize } from '../config/database.js';
-import Customer from '../models/customerModel.js';
+import CustomerModel from "../models/customerModel.js";
 
-class CustomerService {
-    // Lấy thông tin chi tiết kèm thống kê từ SQL
-    static async getCustomerById(id) {
-        // Query lấy thông tin khách hàng kèm tổng chi tiêu và số đơn
-        const [results] = await sequelize.query(`
-            SELECT 
-                kh.*,
-                (SELECT SUM(TongTien) FROM PHIEUBANHANG WHERE MaKH = kh.MaKH) as TongChiTieu,
-                (SELECT COUNT(*) FROM PHIEUBANHANG WHERE MaKH = kh.MaKH) as SoLuongDonHang
-            FROM KHACHHANG kh
-            WHERE kh.MaKH = :id
-        `, { replacements: { id } });
-
-        if (!results.length) throw new Error('Khách hàng không tồn tại');
-
-        // Lấy lịch sử mua hàng
-        const [history] = await sequelize.query(`
-            SELECT 
-                pbh.SoPhieuBH as id,
-                pbh.NgayLap as date,
-                pbh.TongTien as total,
-                GROUP_CONCAT(CONCAT(sp.TenSanPham, ' x', ctbh.SoLuongBan) SEPARATOR ', ') as product_summary
-            FROM PHIEUBANHANG pbh
-            JOIN CHITIETBANHANG ctbh ON pbh.SoPhieuBH = ctbh.SoPhieuBH
-            JOIN SANPHAM sp ON ctbh.MaSanPham = sp.MaSanPham
-            WHERE pbh.MaKH = :id
-            GROUP BY pbh.SoPhieuBH
-            ORDER BY pbh.NgayLap DESC
-        `, { replacements: { id } });
-
-        return { ...results[0], orderHistory: history };
+const customerService = {
+  getAllCustomers: async () => {
+    try {
+      const data = await CustomerModel.getAll();
+      return {
+        errCode: 0,
+        message: "Lấy danh sách khách hàng thành công",
+        data,
+      };
+    } catch (error) {
+      console.error("Error in getAllCustomers:", error);
+      return {
+        errCode: 1,
+        message: "Lỗi lấy danh sách khách hàng",
+        error: error.message,
+      };
     }
+  },
+  getCustomerById: async (maKH) => {
+    try {
+      const customer = await CustomerModel.getById(maKH);
+      if (!customer) {
+        return { errCode: 1, message: "Không tìm thấy khách hàng" };
+      }
+      const orders = await CustomerModel.getOrders(maKH);
+      const totalSpending = orders.reduce((sum, item) => sum + (Number(item.total) || 0), 0);
+      const totalOrders = orders.length;
+      const finalData = {
+        ...customer,          
+        orderHistory: orders, 
+        TongChiTieu: totalSpending,
+        SoLuongDonHang: totalOrders
+      };
 
-    static async createCustomer(data) {
-        const customerData = {
-            ...data,
-            MaKH: `KH${uuidv4().substring(0, 8).toUpperCase()}`
+      return { errCode: 0, message: "OK", data: finalData };
+    } catch (error) {
+      console.error("Error in getCustomerById:", error);
+      return { errCode: 1, message: "Lỗi lấy chi tiết khách hàng", error: error.message };
+    }
+  },
+  createCustomer: async (data) => {
+    try {
+      if (!data.MaKH || !data.TenKH || !data.SoDienThoai) {
+        return {
+          errCode: 1,
+          message: "Thiếu thông tin bắt buộc: Mã KH, Tên, hoặc SĐT",
         };
-        return await Customer.create(customerData);
+      }
+      await CustomerModel.create(data);
+      return { errCode: 0, message: "Tạo thành công" };
+    } catch (e) {
+      if (e.code === "ER_DUP_ENTRY") {
+        return { errCode: 1, message: "Mã khách hàng này đã tồn tại!" };
+      }
+      return { errCode: 1, message: "Lỗi khi tạo: " + e.message };
     }
+  },
 
-    static async deleteCustomer(id) {
-        const t = await sequelize.transaction();
-        try {
-            // Xóa theo thứ tự bảng con trước (Ràng buộc khóa ngoại)
-            await sequelize.query(`DELETE FROM CHITIETPHIEUDICHVU WHERE SoPhieuDV IN (SELECT SoPhieuDV FROM PHIEUDICHVU WHERE MaKH = '${id}')`, { transaction: t });
-            await sequelize.query(`DELETE FROM PHIEUDICHVU WHERE MaKH = '${id}'`, { transaction: t });
-            await sequelize.query(`DELETE FROM CHITIETBANHANG WHERE SoPhieuBH IN (SELECT SoPhieuBH FROM PHIEUBANHANG WHERE MaKH = '${id}')`, { transaction: t });
-            await sequelize.query(`DELETE FROM PHIEUBANHANG WHERE MaKH = '${id}'`, { transaction: t });
-            
-            await Customer.destroy({ where: { MaKH: id }, transaction: t });
-            await t.commit();
-        } catch (error) {
-            await t.rollback();
-            throw error;
-        }
+  updateCustomer: async (id, data) => {
+    try {
+      await CustomerModel.update(id, data);
+      return { errCode: 0, message: "Cập nhật thành công" };
+    } catch (e) {
+      return { errCode: 1, message: "Lỗi cập nhật" };
     }
+  },
 
-    static async getAllCustomers() {
-        return await Customer.findAll();
+  deleteCustomer: async (id) => {
+    try {
+      await CustomerModel.delete(id);
+      return { errCode: 0, message: "Xóa thành công" };
+    } catch (e) {
+      return { errCode: 1, message: "Lỗi xóa" };
     }
-}
+  },
+};
 
-export default CustomerService;
+export default customerService;
