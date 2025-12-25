@@ -1,32 +1,30 @@
-import axios from './axios';
-
+import axios from "./axios";
 export const getAllCustomersService = () => {
-  return axios.get('/api/customers');
+  return axios.get("/api/customers");
 };
 
-export const getCustomerById = (id) => {
+export const getCustomerByIdService = (id) => {
   return axios.get(`/api/customers/${id}`);
 };
 
-export const createCustomer = (data) => {
-  return axios.post('/api/customers', data);
+export const createCustomerService = (data) => {
+  return axios.post("/api/customers", data);
 };
 
-export const updateCustomer = (id, data) => {
+export const updateCustomerService = (id, data) => {
   return axios.put(`/api/customers/${id}`, data);
 };
 
-export const deleteCustomer = (id) => {
+export const deleteCustomerService = (id) => {
   return axios.delete(`/api/customers/${id}`);
 };
 
-// Compatibility exports: default and `customerService` named object
-export const customerService = {
+const customerService = {
   getAllCustomers: getAllCustomersService,
-  getCustomerById,
-  createCustomer,
-  updateCustomer,
-  deleteCustomer,
+  getCustomerById: getCustomerByIdService,
+  createCustomer: createCustomerService,
+  updateCustomer: updateCustomerService,
+  deleteCustomer: deleteCustomerService,
 };
 
-export default getAllCustomersService;
+export default customerService;
