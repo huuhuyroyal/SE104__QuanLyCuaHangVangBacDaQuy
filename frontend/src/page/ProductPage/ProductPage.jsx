@@ -108,7 +108,8 @@ const ProductPage = () => {
 
   //XỬ LÝ XÓA
   const handleDeleteProducts = () => {
-    if (!checkActionPermission(["admin", "warehouse"])) return;
+    if (!checkActionPermission(["admin"], false))
+      return message.error("Liên hệ admin để thực hiện xóa sản phẩm");
     if (state.selectedProducts.length === 0) return;
     const selectedItems = data.filter((item) =>
       state.selectedProducts.includes(item.ProductID)

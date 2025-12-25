@@ -3,6 +3,7 @@ import { Table, DatePicker, Button, message } from "antd";
 import { FileTextOutlined } from "@ant-design/icons";
 import InventoryReportService from "../../services/InventoryReport";
 import "./InventoryReport.css";
+import { checkActionPermission } from "../../utils/checkRole";
 
 const InventoryReport = () => {
   // State
@@ -12,6 +13,7 @@ const InventoryReport = () => {
 
   // call api
   const handleCreateReport = async () => {
+    if (!checkActionPermission(["admin", "warehouse"])) return;
     if (!selectedMonth) {
       message.error("Vui lòng chọn Tháng/Năm để lập báo cáo!");
       return;
@@ -24,16 +26,16 @@ const InventoryReport = () => {
 
       // Gọi API qua Service
       const response = await InventoryReportService.getReport(month, year);
-      console.log("Response Report:", response);
 
       if (response && response.success) {
         const rawItems = response.data.items;
 
-        // Mapping dữ liệu
+        // Chuẩn hóa lại dữ liệu
         const mappedData = rawItems.map((item) => ({
           key: item.maSanPham,
           ProductName: item.tenSanPham,
           ProductID: item.maSanPham,
+          HinhAnh: item.HinhAnh,
           first_stock: item.tonDau,
           buy: item.nhap,
           final_stock: item.tonCuoi,
@@ -57,6 +59,22 @@ const InventoryReport = () => {
       title: "Sản phẩm",
       dataIndex: "ProductName",
       key: "ProductName",
+      render: (text, record) => (
+        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+          <img
+            src={record.HinhAnh}
+            alt={record.ProductName}
+            style={{
+              width: 40,
+              height: 40,
+              objectFit: "cover",
+              borderRadius: "4px",
+              border: "1px solid #eee",
+            }}
+          />
+          <div>{text}</div>
+        </div>
+      ),
     },
     {
       title: "Tồn đầu",

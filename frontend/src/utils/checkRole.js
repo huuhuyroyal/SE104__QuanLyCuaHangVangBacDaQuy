@@ -33,19 +33,25 @@ export const getUserRole = () => {
 export const ROLE_PERMISSIONS = {
   admin: "ALL",
   warehouse: [
-    "/Dashboard",
-    "/ProductPage",
-    "/InventoryReport",
-    "/Unit",
-    "/PurchaseOrder",
+    "/Dashboard", //xem
+    "/ProductPage", //xem, tạo, sửa, xóa
+    "/InventoryReport", //xem
+    "/Unit", //xem, tạo, sửa
+    "/SalesInvoice", //xem
+    "/PurchaseOrder", //xem, tạo
+    "/ProductType", //xem, tạo, sửa
+    "/Profile", //xem, sửa
   ],
   seller: [
     "/Dashboard",
     "/ProductPage",
-    "/SaleOrder",
-    "/Customer",
-    "/ServiceType",
-    "/ServiceTicket",
+    "/Unit",
+    "/SalesInvoice", //xem, tạo
+    "/ProductType", //Xem
+    "/ServiceType", //Xem
+    "/ServiceTicket", //xem, tạo
+    "/Customer", //xem, tạo, sửa, xóa
+    "/Profile", //xem, sửa
   ],
 };
 
@@ -57,13 +63,13 @@ export const hasMenuAccess = (path) => {
   return allowedPaths.includes(path);
 };
 
-export const checkActionPermission = (allowedRoles) => {
+export const checkActionPermission = (allowedRoles, showMessage = true) => {
   const currentRole = getUserRole();
 
   if (!allowedRoles.includes(currentRole)) {
-    message.error(
-      `Bạn không có quyền thực hiện chức năng này. Vai trò của bạn hiện tại đang là ${currentRole}`
-    );
+    if (showMessage) {
+      message.error("Bạn không có quyền thực hiện chức năng này!");
+    }
     return false;
   }
   return true;

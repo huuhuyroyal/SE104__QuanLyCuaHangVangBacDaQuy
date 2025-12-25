@@ -6,7 +6,6 @@
 :root {
   --text-color: #ffffff;
   --sidebar-color: #3e0703;
-  --content-color: #000000;
 }
 
 body {
@@ -16,9 +15,14 @@ body {
 .sidebar {
   width: 270px;
   background-color: var(--sidebar-color);
-  color: (--text-color);
+  color: var(--text-color);
   display: flex;
   flex-direction: column;
+  height: 100vh;
+  position: sticky;
+  top: 0;
+  overflow-y: auto;
+  z-index: 10;
 }
 
 .logo {

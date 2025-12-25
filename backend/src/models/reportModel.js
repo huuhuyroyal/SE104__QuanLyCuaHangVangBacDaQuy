@@ -22,6 +22,7 @@ const ReportModel = {
         SELECT 
             s.MaSanPham, 
             s.TenSanPham, 
+            s.HinhAnh,
             d.TenDVT,
             (s.SoLuongTon + IFNULL(NhapTruoc.Sl, 0) - IFNULL(BanTruoc.Sl, 0)) AS TonDau,
             IFNULL(NhapTrong.Sl, 0) AS SoLuongMuaVao,
@@ -58,7 +59,7 @@ const ReportModel = {
             WHERE pb.NgayLap >= ? AND pb.NgayLap < ?
             GROUP BY ctb.MaSanPham
         ) AS BanTrong ON s.MaSanPham = BanTrong.MaSanPham
-        WHERE s.isDelete = 0
+        
         ORDER BY s.MaSanPham ASC
       `;
 
