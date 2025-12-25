@@ -170,8 +170,8 @@ const PurchaseInvoice = () => {
           TenSanPham: p.TenSanPham,
           HinhAnh: p.HinhAnh,
           SoLuongMua: 1,
-          DonGiaMua: p.DonGiaBanRa || p.DonGiaBan || 0,
-          ThanhTien: Number(p.DonGiaBanRa || p.DonGiaBan || 0),
+          DonGiaMua: p.DonGiaMua,
+          ThanhTien: Number(p.DonGiaMua),
         });
       }
     });
@@ -592,8 +592,8 @@ const PurchaseInvoice = () => {
             },
             {
               title: "Đơn giá",
-              dataIndex: "DonGiaBanRa",
-              key: "DonGiaBanRa",
+              dataIndex: "DonGiaMuaVao",
+              key: "DonGiaMuaVao",
               render: (v) => (v ? Number(v).toLocaleString() + " đ" : "N/A"),
             },
           ]}

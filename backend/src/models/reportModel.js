@@ -24,13 +24,19 @@ const ReportModel = {
             s.TenSanPham, 
             s.HinhAnh,
             d.TenDVT,
-            (s.SoLuongTon + IFNULL(NhapTruoc.Sl, 0) - IFNULL(BanTruoc.Sl, 0)) AS TonDau,
+
+            (IFNULL(NhapTruoc.Sl, 0) - IFNULL(BanTruoc.Sl, 0)) AS TonDau,
+            
             IFNULL(NhapTrong.Sl, 0) AS SoLuongMuaVao,
             IFNULL(BanTrong.Sl, 0) AS SoLuongBanRa,
-            ((s.SoLuongTon + IFNULL(NhapTruoc.Sl, 0) - IFNULL(BanTruoc.Sl, 0)) + IFNULL(NhapTrong.Sl, 0) - IFNULL(BanTrong.Sl, 0)) AS TonCuoi
+            
+            ((IFNULL(NhapTruoc.Sl, 0) - IFNULL(BanTruoc.Sl, 0)) + IFNULL(NhapTrong.Sl, 0) - IFNULL(BanTrong.Sl, 0)) AS TonCuoi
+
         FROM SANPHAM s
         LEFT JOIN LOAISANPHAM l ON s.MaLoaiSanPham = l.MaLoaiSanPham
         LEFT JOIN DONVITINH d ON l.MaDVT = d.MaDVT
+        
+        -- Tính tổng nhập từ quá khứ cho đến trước ngày startDate
         LEFT JOIN (
             SELECT ctm.MaSanPham, SUM(ctm.SoLuongMua) AS Sl
             FROM CHITIETMUAHANG ctm
@@ -38,6 +44,8 @@ const ReportModel = {
             WHERE pm.NgayLap < ? 
             GROUP BY ctm.MaSanPham
         ) AS NhapTruoc ON s.MaSanPham = NhapTruoc.MaSanPham
+        
+        -- Tính tổng bán từ quá khứ cho đến trước ngày startDate
         LEFT JOIN (
             SELECT ctb.MaSanPham, SUM(ctb.SoLuongBan) AS Sl
             FROM CHITIETBANHANG ctb
@@ -45,6 +53,8 @@ const ReportModel = {
             WHERE pb.NgayLap < ?
             GROUP BY ctb.MaSanPham
         ) AS BanTruoc ON s.MaSanPham = BanTruoc.MaSanPham
+        
+        -- Tính tổng nhập TRONG khoảng thời gian báo cáo
         LEFT JOIN (
             SELECT ctm.MaSanPham, SUM(ctm.SoLuongMua) AS Sl
             FROM CHITIETMUAHANG ctm
@@ -52,6 +62,8 @@ const ReportModel = {
             WHERE pm.NgayLap >= ? AND pm.NgayLap < ?
             GROUP BY ctm.MaSanPham
         ) AS NhapTrong ON s.MaSanPham = NhapTrong.MaSanPham
+        
+        -- Tính tổng bán TRONG khoảng thời gian báo cáo
         LEFT JOIN (
             SELECT ctb.MaSanPham, SUM(ctb.SoLuongBan) AS Sl
             FROM CHITIETBANHANG ctb

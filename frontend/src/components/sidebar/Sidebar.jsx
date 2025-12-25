@@ -23,6 +23,11 @@ const MENU_ITEMS = [
     label: "Quản lý phiếu mua hàng",
     icon: "/gio_hang.svg",
   },
+  {
+    path: "/Supplier",
+    label: "Quản lý nhà cung cấp",
+    icon: "/ql_nha_cung_cap.png",
+  },
 
   {
     path: "/ProductType",

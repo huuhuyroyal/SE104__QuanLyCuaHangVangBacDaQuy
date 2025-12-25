@@ -9,6 +9,7 @@ import PurchaseInvoice from "../page/PurchaseInvoice/PurchaseInvoice";
 import SupplierPage from "../page/Supplier/Supplier";
 import ServiceType from "../page/ServiceType/ServiceType";
 import ServiceTicket from "../page/ServiceTicket/ServiceTicket";
+import Profile from "../page/Profile/Profile";
 import Title from "antd/es/skeleton/Title";
 
 export const routes = [
@@ -61,10 +62,10 @@ export const routes = [
     isShowSidebar: true,
   },
   {
-  path: "/ProductType",
-  Title: "Quản lý loại sản phẩm",
-  component: ProductType,
-  isShowSidebar: true,
+    path: "/ProductType",
+    Title: "Quản lý loại sản phẩm",
+    component: ProductType,
+    isShowSidebar: true,
   },
   {
     path: "/ServiceType",
@@ -76,6 +77,12 @@ export const routes = [
     path: "/ServiceTicket",
     Title: "Quản lý phiếu dịch vụ",
     component: ServiceTicket,
+    isShowSidebar: true,
+  },
+  {
+    path: "/Profile",
+    Title: "Quản lý tài khoản",
+    component: Profile,
     isShowSidebar: true,
   },
 ];
