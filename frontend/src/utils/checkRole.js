@@ -41,6 +41,7 @@ export const ROLE_PERMISSIONS = {
     "/PurchaseOrder", //xem, tạo
     "/ProductType", //xem, tạo, sửa
     "/Profile", //xem, sửa
+    "/Supplier", //xem, tạo, sửa, xóa
   ],
   seller: [
     "/Dashboard",

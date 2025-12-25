@@ -1,21 +1,17 @@
 import express from "express";
-import employeeController from "../controllers/employeeController.js";
-import authMiddleware from "../middleware/authMiddleware.js";
+import {
+  getAllEmployees,
+  createEmployee,
+  deleteEmployee,
+} from "../controllers/employeeController.js";
 
 const router = express.Router();
 
 const initEmployeeRoute = (app) => {
-  // Danh sách nhân viên (admin only)
-  router.get("/api/employees", authMiddleware.checkPermission(["admin"]), employeeController.getAllEmployees);
-
-  // Chi tiết nhân viên (thống kê)
-  router.get("/api/employees/:id", authMiddleware.checkPermission(["admin"]), employeeController.getEmployeeDetail);
-
-  // Tạo tài khoản nhân viên (admin only)
-  router.post("/api/employees", authMiddleware.checkPermission(["admin"]), employeeController.createEmployee);
-
-  // Xóa nhân viên (admin only)
-  router.delete("/api/employees/:id", authMiddleware.checkPermission(["admin"]), employeeController.deleteEmployee);
+  // Đảm bảo các hàm controller được import đúng và không undefined
+  router.get("/api/employees", getAllEmployees);
+  router.post("/api/employees", createEmployee);
+  router.delete("/api/employees/:MaTaiKhoan", deleteEmployee);
 
   return app.use("/", router);
 };

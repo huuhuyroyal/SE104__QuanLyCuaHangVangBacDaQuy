@@ -12,7 +12,7 @@ import ServiceTicket from "../page/ServiceTicket/ServiceTicket";
 import Profile from "../page/Profile/Profile";
 import CustomerList from "../page/ListCustomer/ListCustomer";
 import CustomerDetail from "../page/CustomerDetail/CustomerDetail";
-
+import ListEmployee from "../page/ListEmployee/ListEmployee";
 import Title from "antd/es/skeleton/Title";
 
 export const routes = [
@@ -93,6 +93,12 @@ export const routes = [
     Title: "Chi tiết khách hàng",
     component: CustomerDetail,
     isShowSidebar: false,
+  },
+  {
+    path: "/ListEmployee",
+    Title: "Quản lý nhân viên",
+    component: ListEmployee,
+    isShowSidebar: true,
   },
   {
     path: "/Profile",

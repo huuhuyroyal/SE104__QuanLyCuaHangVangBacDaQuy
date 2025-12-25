@@ -532,10 +532,6 @@ const SalesInvoice = () => {
         rowSelection={{
           selectedRowKeys,
           onChange: (keys) => setSelectedRowKeys(keys),
-          getCheckboxProps: (record) => ({
-            disabled: (Number(record.SoLuongTon) || 0) <= 0,
-            name: record.TenSanPham,
-          }),
         }}
         pagination={{
           defaultPageSize: 10,

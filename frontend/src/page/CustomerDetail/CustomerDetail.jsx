@@ -34,7 +34,6 @@ const CustomerDetail = () => {
     try {
       setLoading(true);
       const response = await customerService.getCustomerById(id);
-      console.log("Customer detail response:", response);
       if (response && response.errCode === 0) {
         const customerInfo = response.data; // Lấy dữ liệu từ thuộc tính .data
 
