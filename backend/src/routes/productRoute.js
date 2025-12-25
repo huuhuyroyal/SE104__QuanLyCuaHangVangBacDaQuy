@@ -13,7 +13,7 @@ const initProductRoute = (app) => {
   router.post(
     "/api/products/delete",
     verifyRole.verifyToken,
-    verifyRole.checkPermission(["admin", "warehouse"]),
+    verifyRole.checkPermission(["admin"]),
     productController.deleteProducts
   );
   router.post(
