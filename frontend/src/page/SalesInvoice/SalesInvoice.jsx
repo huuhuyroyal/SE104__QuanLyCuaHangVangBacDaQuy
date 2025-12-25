@@ -27,7 +27,7 @@ import {
   getInvoiceByIdService,
 } from "../../services/invoiceService";
 import getAllProductsService from "../../services/productService";
-import getAllCustomersService from "../../services/customerService";
+import { getAllCustomersService } from "../../services/customerService";
 import "./SalesInvoice.css";
 import { checkActionPermission } from "../../utils/checkRole";
 
@@ -222,6 +222,8 @@ const SalesInvoice = () => {
       if (stock && desired > stock) {
         message.error(`Số lượng không được vượt quá tồn kho (${stock})`);
         newItems[index][key] = stock;
+      } else if (desired < 0) {
+        newItems[index][key] = 1;
       } else {
         newItems[index][key] = desired;
       }
@@ -274,9 +276,7 @@ const SalesInvoice = () => {
       );
       if (over) {
         message.error(
-          `Sản phẩm ${over.TenSanPham || over.MaSanPham} vượt quá tồn kho (${
-            over.SoLuongTon
-          })`
+          `Sản phẩm "${over.TenSanPham}" vượt quá tồn kho (${over.SoLuongTon}). Vui lòng giảm số lượng.`
         );
         return;
       }
@@ -532,6 +532,10 @@ const SalesInvoice = () => {
         rowSelection={{
           selectedRowKeys,
           onChange: (keys) => setSelectedRowKeys(keys),
+          getCheckboxProps: (record) => ({
+            disabled: (Number(record.SoLuongTon) || 0) <= 0,
+            name: record.TenSanPham,
+          }),
         }}
         pagination={{
           defaultPageSize: 10,
@@ -950,6 +954,10 @@ const SalesInvoice = () => {
           rowSelection={{
             selectedRowKeys: selectedProductsKeys,
             onChange: (keys) => setSelectedProductsKeys(keys),
+            getCheckboxProps: (record) => ({
+              disabled: (Number(record.SoLuongTon) || 0) <= 0,
+              name: record.TenSanPham,
+            }),
           }}
           columns={[
             {
