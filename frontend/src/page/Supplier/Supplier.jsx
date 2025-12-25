@@ -32,7 +32,10 @@ const SupplierPage = () => {
       setLoading(true);
       const result = await supplierService.getSuppliers();
       if (result.errCode === 0) {
-        const formatted = result.data.map((item) => ({ ...item, key: item.MaNCC }));
+        const formatted = result.data.map((item) => ({
+          ...item,
+          key: item.MaNCC,
+        }));
         setData(formatted);
         setFilteredData(formatted);
       } else {
@@ -57,7 +60,10 @@ const SupplierPage = () => {
     try {
       const result = await supplierService.searchSuppliers(value.trim());
       if (result.errCode === 0) {
-        const formatted = result.data.map((item) => ({ ...item, key: item.MaNCC }));
+        const formatted = result.data.map((item) => ({
+          ...item,
+          key: item.MaNCC,
+        }));
         setFilteredData(formatted);
       }
     } catch (error) {
@@ -111,11 +117,14 @@ const SupplierPage = () => {
     try {
       setLoading(true);
       if (isEditMode && selectedSupplier) {
-        const result = await supplierService.updateSupplier(selectedSupplier.MaNCC, {
-          tenNCC: values.tenNCC,
-          diaChi: values.diaChi,
-          soDienThoai: values.soDienThoai,
-        });
+        const result = await supplierService.updateSupplier(
+          selectedSupplier.MaNCC,
+          {
+            tenNCC: values.tenNCC,
+            diaChi: values.diaChi,
+            soDienThoai: values.soDienThoai,
+          }
+        );
         if (result.errCode === 0) {
           message.success("Cập nhật nhà cung cấp thành công");
           await loadSuppliers();
@@ -239,7 +248,9 @@ const SupplierPage = () => {
           <Form.Item
             label="Mã nhà cung cấp"
             name="maNCC"
-            rules={[{ required: true, message: "Vui lòng nhập mã nhà cung cấp" }]}
+            rules={[
+              { required: true, message: "Vui lòng nhập mã nhà cung cấp" },
+            ]}
           >
             <Input placeholder="Ví dụ: NCC01" disabled={isEditMode} />
           </Form.Item>
@@ -247,7 +258,9 @@ const SupplierPage = () => {
           <Form.Item
             label="Tên nhà cung cấp"
             name="tenNCC"
-            rules={[{ required: true, message: "Vui lòng nhập tên nhà cung cấp" }]}
+            rules={[
+              { required: true, message: "Vui lòng nhập tên nhà cung cấp" },
+            ]}
           >
             <Input placeholder="Ví dụ: Công ty vàng bạc ABC" />
           </Form.Item>

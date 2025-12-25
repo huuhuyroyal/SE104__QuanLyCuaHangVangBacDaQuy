@@ -5,52 +5,48 @@ const getAllEmployeesService = async () => {
     const employees = await EmployeeModel.getAllEmployees();
     return { errCode: 0, message: "OK", data: employees };
   } catch (error) {
-    console.error("Lỗi Service Employees:", error);
-    return { errCode: 1, message: "Lỗi Server", data: [] };
-  }
-};
-
-const getEmployeeDetailService = async (id) => {
-  try {
-    const detail = await EmployeeModel.getEmployeeStatsById(id);
-    if (!detail) {
-      return { errCode: 1, message: "Không tìm thấy nhân viên", data: null };
-    }
-    return { errCode: 0, message: "OK", data: detail };
-  } catch (error) {
-    console.error("Lỗi Service Employee Detail:", error);
-    return { errCode: 1, message: "Lỗi Server", data: null };
+    console.error("Error Service:", error);
+    return { errCode: 1, message: "Lỗi lấy danh sách", data: [] };
   }
 };
 
 const createEmployeeService = async (data) => {
   try {
     const { TenTaiKhoan, MatKhau, Role } = data;
-    if (!TenTaiKhoan || !MatKhau || !Role) {
-      return { errCode: 2, message: "Thiếu thông tin tạo tài khoản" };
-    }
-    const insertId = await EmployeeModel.createEmployee({ TenTaiKhoan, MatKhau, Role });
-    return { errCode: 0, message: "Tạo tài khoản thành công", data: { MaTaiKhoan: insertId } };
-  } catch (error) {
-    console.error("Lỗi Service Create Employee:", error);
-    if (error && error.code === "ER_DUP_ENTRY") {
+    const isExist = await EmployeeModel.checkExist(TenTaiKhoan);
+
+    if (isExist) {
       return { errCode: 3, message: "Tên tài khoản đã tồn tại" };
     }
-    return { errCode: 1, message: "Lỗi Server" };
-  }
-};
 
-const deleteEmployeeService = async (id) => {
-  try {
-    const affected = await EmployeeModel.deleteEmployeeById(id);
-    if (!affected || affected === 0) {
-      return { errCode: 1, message: "Không tìm thấy nhân viên hoặc đã xóa" };
-    }
-    return { errCode: 0, message: "Xóa nhân viên thành công" };
+    const insertId = await EmployeeModel.createEmployee({
+      TenTaiKhoan,
+      MatKhau,
+      Role,
+    });
+    return {
+      errCode: 0,
+      message: "Tạo tài khoản thành công",
+      data: { MaTaiKhoan: insertId },
+    };
   } catch (error) {
-    console.error("Lỗi Service Delete Employee:", error);
-    return { errCode: 1, message: "Lỗi Server khi xóa nhân viên" };
+    return { errCode: 1, message: "Lỗi hệ thống khi tạo" };
   }
 };
 
-export default { getAllEmployeesService, getEmployeeDetailService, createEmployeeService, deleteEmployeeService };
+const deleteEmployeeService = async (MaTaiKhoan) => {
+  try {
+    const affected = await EmployeeModel.deleteEmployeeById(MaTaiKhoan);
+    if (affected === 0)
+      return { errCode: 2, message: "Tài khoản không tồn tại" };
+    return { errCode: 0, message: "Xóa thành công" };
+  } catch (error) {
+    return { errCode: 1, message: "Lỗi hệ thống khi xóa" };
+  }
+};
+
+export default {
+  getAllEmployeesService,
+  createEmployeeService,
+  deleteEmployeeService,
+};

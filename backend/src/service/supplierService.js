@@ -4,7 +4,11 @@ const supplierService = {
   getAllSuppliers: async () => {
     try {
       const data = await SupplierModel.getAllSuppliers();
-      return { errCode: 0, message: "Lấy danh sách nhà cung cấp thành công", data };
+      return {
+        errCode: 0,
+        message: "Lấy danh sách nhà cung cấp thành công",
+        data,
+      };
     } catch (error) {
       console.error("Lỗi lấy danh sách nhà cung cấp:", error);
       return { errCode: 1, message: "Lỗi Server", data: [] };
@@ -41,11 +45,19 @@ const supplierService = {
   createSupplier: async ({ maNCC, tenNCC, diaChi, soDienThoai }) => {
     try {
       if (!maNCC || !tenNCC) {
-        return { errCode: 1, message: "Mã và tên nhà cung cấp không được để trống" };
+        return {
+          errCode: 1,
+          message: "Mã và tên nhà cung cấp không được để trống",
+        };
       }
 
       try {
-        await SupplierModel.createSupplier({ maNCC, tenNCC, diaChi, soDienThoai });
+        await SupplierModel.createSupplier({
+          maNCC,
+          tenNCC,
+          diaChi,
+          soDienThoai,
+        });
         return { errCode: 0, message: "Thêm nhà cung cấp thành công" };
       } catch (err) {
         if (err.code === "ER_DUP_ENTRY" || err.message.includes("Duplicate")) {
@@ -62,7 +74,10 @@ const supplierService = {
   updateSupplier: async ({ maNCC, tenNCC, diaChi, soDienThoai }) => {
     try {
       if (!maNCC || !tenNCC) {
-        return { errCode: 1, message: "Mã và tên nhà cung cấp không được để trống" };
+        return {
+          errCode: 1,
+          message: "Mã và tên nhà cung cấp không được để trống",
+        };
       }
 
       const existing = await SupplierModel.getSupplierById(maNCC);
@@ -70,9 +85,17 @@ const supplierService = {
         return { errCode: 1, message: "Không tìm thấy nhà cung cấp" };
       }
 
-      const result = await SupplierModel.updateSupplier({ maNCC, tenNCC, diaChi, soDienThoai });
+      const result = await SupplierModel.updateSupplier({
+        maNCC,
+        tenNCC,
+        diaChi,
+        soDienThoai,
+      });
       if (!result.affectedRows) {
-        return { errCode: 1, message: "Cập nhật nhà cung cấp không thành công" };
+        return {
+          errCode: 1,
+          message: "Cập nhật nhà cung cấp không thành công",
+        };
       }
       return { errCode: 0, message: "Cập nhật nhà cung cấp thành công" };
     } catch (error) {

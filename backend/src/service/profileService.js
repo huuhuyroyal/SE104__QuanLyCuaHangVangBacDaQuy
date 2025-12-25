@@ -9,41 +9,11 @@ const profileService = {
       throw error;
     }
   },
-  createNewProfile: async (data) => {
-    try {
-      const isExist = await profileModel.checkProfileExist(data.TenTaiKhoan);
-      if (isExist) {
-        return { errCode: 1, message: "Tên đăng nhập đã tồn tại!" };
-      }
-
-      await profileModel.createNewProfile(
-        data.TenTaiKhoan,
-        data.MatKhau,
-        data.Role
-      );
-      return { errCode: 0, message: "Tạo tài khoản thành công!" };
-    } catch (error) {
-      throw error;
-    }
-  },
-
-  deleteProfile: async (profilename) => {
-    try {
-      const profile = await profileModel.checkProfileExist(profilename);
-      if (!profile) {
-        return { errCode: 2, message: "Người dùng không tồn tại" };
-      }
-      await profileModel.deleteProfile(profilename);
-      return { errCode: 0, message: "Xóa thành công" };
-    } catch (error) {
-      throw error;
-    }
-  },
 
   changePassword: async (data) => {
     try {
       const { profilename, oldPassword, newPassword } = data;
-      const profile = await profileModel.getprofileByprofilename(profilename);
+      const profile = await profileModel.getProfileByProfilename(profilename);
       if (!profile) {
         return { errCode: 2, message: "Người dùng không tồn tại" };
       }

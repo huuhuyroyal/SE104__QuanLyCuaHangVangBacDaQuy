@@ -191,13 +191,6 @@ const Dashboard = () => {
                 activeDot={{ r: 8 }}
                 strokeWidth={3}
               />
-              <Line
-                type="monotone"
-                dataKey="last"
-                name="Năm 2024"
-                stroke="#82ca9d"
-                strokeWidth={2}
-              />
             </LineChart>
           </ResponsiveContainer>
         </div>
@@ -238,7 +231,6 @@ const Dashboard = () => {
                   <Tooltip />
                   <Legend />
                   <Bar dataKey="now" name="Năm 2025" fill="#8884d8" />
-                  <Bar dataKey="last" name="Năm 2024" fill="#82ca9d" />
                 </BarChart>
               </ResponsiveContainer>
             </div>
