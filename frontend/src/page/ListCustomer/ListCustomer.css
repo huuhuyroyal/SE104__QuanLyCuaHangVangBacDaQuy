@@ -1,0 +1,91 @@
+/* Container chính */
+.customer-page-container {
+  margin-left: 20px;
+  padding: 24px;
+  background-color: #ffffff;
+  min-height: calc(100vh - 70px);
+}
+
+.customer-card {
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+/* Header Action */
+.customer-header-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.search-input {
+  width: 350px;
+  border-radius: 6px;
+}
+
+/* Nút bấm Đỏ Rượu */
+.btn-add {
+  background-color: #3e0703 !important;
+  border-color: #3e0703 !important;
+  height: 40px;
+  font-weight: 500;
+}
+
+.btn-add:hover {
+  background-color: #5a0a04 !important;
+  border-color: #5a0a04 !important;
+}
+
+.btn-export {
+  height: 40px;
+  color: #3e0703;
+  border-color: #3e0703;
+}
+
+.btn-export:hover {
+  color: #5a0a04 !important;
+  border-color: #5a0a04 !important;
+}
+
+/* Tùy chỉnh Table */
+.custom-table .ant-table-thead > tr > th {
+  background-color: #3e0703 !important;
+  color: #ffffff !important;
+  border-radius: 0 !important;
+}
+
+.custom-table .ant-table-row:hover td {
+  background-color: #fdf2f1 !important; /* Đỏ nhạt khi hover */
+  cursor: pointer;
+}
+
+/* Modal */
+.modal-title {
+  color: #3e0703;
+  font-weight: 700;
+  font-size: 18px;
+}
+
+.add-customer-form .ant-form-item-label > label {
+  font-weight: 600;
+  color: #555;
+}
+
+.btn-submit {
+  background-color: #3e0703 !important;
+  border-color: #3e0703 !important;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 20px;
+  margin-bottom: 0;
+}
+
+/* Input Focus màu đỏ rượu */
+.ant-input:focus,
+.ant-input-focused {
+  border-color: #3e0703 !important;
+  box-shadow: 0 0 0 2px rgba(62, 7, 3, 0.1) !important;
+}

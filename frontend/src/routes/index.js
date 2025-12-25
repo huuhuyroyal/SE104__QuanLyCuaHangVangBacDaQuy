@@ -10,6 +10,9 @@ import SupplierPage from "../page/Supplier/Supplier";
 import ServiceType from "../page/ServiceType/ServiceType";
 import ServiceTicket from "../page/ServiceTicket/ServiceTicket";
 import Profile from "../page/Profile/Profile";
+import CustomerList from "../page/ListCustomer/ListCustomer";
+import CustomerDetail from "../page/CustomerDetail/CustomerDetail";
+
 import Title from "antd/es/skeleton/Title";
 
 export const routes = [
@@ -78,6 +81,18 @@ export const routes = [
     Title: "Quản lý phiếu dịch vụ",
     component: ServiceTicket,
     isShowSidebar: true,
+  },
+  {
+    path: "/Customer",
+    Title: "Quản lý khách hàng",
+    component: CustomerList,
+    isShowSidebar: true,
+  },
+  {
+    path: "/customer-detail/:id",
+    Title: "Chi tiết khách hàng",
+    component: CustomerDetail,
+    isShowSidebar: false,
   },
   {
     path: "/Profile",
