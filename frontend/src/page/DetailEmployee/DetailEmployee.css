@@ -1,0 +1,167 @@
+.employee-detail {
+  margin-left: 270px;
+  background-color: #fdf2f2;
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+
+  .employee-container {
+    display: flex;
+    flex: 3;
+    flex-direction: column;
+    gap: 20px;
+    justify-content: flex-start;
+    align-items: flex-start;
+    padding: 20px;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(62, 7, 3, 0.08);
+
+    .employee-stats {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+      margin-top: 20px;
+      width: 100%;
+
+      .stat-card {
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        border: 1px solid rgba(62, 7, 3, 0.1);
+      }
+
+      .stat-card:nth-child(1) { background-color: #fceaea; }
+      .stat-card:nth-child(2) { background-color: #fff2e6; } 
+      .stat-card:nth-child(3) { background-color: #fff9db; } 
+      .stat-card:nth-child(4) { background-color: #ffe3e0; }
+
+      .stat-card .icon-wrapper {
+        width: 50px;
+        height: 50px;
+        background: rgba(62, 7, 3, 0.1);
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .stat-card .icon-wrapper .icon {
+        font-size: 24px;
+        color: #3E0703;
+      }
+
+      .stat-card .stat-title {
+        font-size: 18px;
+        color: #5c5c5c;
+        font-weight: bold;
+      }
+
+      .stat-card .stat-value {
+        font-size: 28px;
+        font-weight: bold;
+        color: #3E0703;
+      }
+
+      .summary-item strong {
+        color: #3E0703;
+      }
+    }
+
+    .purchase-history {
+      width: 100%;
+      margin-top: 20px;
+      background: #fff;
+      border-radius: 10px;
+      padding: 20px;
+      border: 1px solid #eee;
+    }
+
+    .purchase-history h3 {
+      color: #3E0703;
+    }
+
+    .history-table thead tr {
+      background: #fdf2f2;
+    }
+
+    .history-table th {
+      color: #3E0703;
+      border-bottom: 2px solid #3E0703;
+    }
+
+    .history-table .order-id {
+      color: #a8071a;
+    }
+
+    .status.completed {
+      background: #f6ffed;
+      color: #389e0d;
+    }
+
+    .page-buttons button.active {
+      background: #3E0703;
+      color: #fff;
+    }
+
+    .page-buttons button:hover {
+      background: #fceaea;
+      color: #3E0703;
+    }
+  }
+
+  .employee-info {
+    flex: 1;
+    background: #fff;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(62, 7, 3, 0.08);
+
+    .avatar-placeholder img {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      border: 3px solid #3E0703;
+      padding: 3px;
+    }
+
+    .employee-name {
+      color: #3E0703;
+    }
+
+    .role {
+      background-color: #3E0703;
+      color: #ffffff;
+      padding: 5px 12px;
+      border-radius: 12px;
+    }
+
+    .info-item strong {
+      color: #3E0703;
+    }
+
+    .info-icon {
+      color: #3E0703;
+    }
+
+    .save-button {
+      background-color: #3E0703;
+      color: white;
+      border: none;
+      transition: opacity 0.3s;
+      &:hover {
+        opacity: 0.9;
+        cursor: pointer;
+      }
+    }
+
+    .disabled-button {
+      background-color: #bfbfbf;
+      color: white;
+    }
+  }
+}
