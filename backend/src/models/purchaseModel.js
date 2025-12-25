@@ -57,7 +57,8 @@ const PurchaseModel = {
     if (items && items.length > 0) {
       const insertQuery = `INSERT INTO chitietmuahang (MaChiTietMH, SoPhieuMH, MaSanPham, SoLuongMua, DonGiaMua, ThanhTien) VALUES ?`;
       const values = items.map((it) => [
-        it.MaChiTietMH || `CTMH${Date.now()}${Math.floor(Math.random() * 1000)}`,
+        it.MaChiTietMH ||
+          `CTMH${Date.now()}${Math.floor(Math.random() * 1000)}`,
         SoPhieuMH,
         it.MaSanPham,
         it.SoLuongMua || 0,
@@ -65,6 +66,40 @@ const PurchaseModel = {
         it.ThanhTien || 0,
       ]);
       await connection.query(insertQuery, [values]);
+      for (const item of items) {
+        // Lấy Phần trăm lợi nhuận từ bảng Loại Sản Phẩm
+        const [typeRows] = await connection.execute(
+          `SELECT lsp.PhanTramLoiNhuan 
+           FROM sanpham sp 
+           JOIN loaisanpham lsp ON sp.MaLoaiSanPham = lsp.MaLoaiSanPham 
+           WHERE sp.MaSanPham = ?`,
+          [item.MaSanPham]
+        );
+
+        // Mặc định là 0 nếu không tìm thấy
+        const profitPercent =
+          typeRows[0] && typeRows[0].PhanTramLoiNhuan
+            ? typeRows[0].PhanTramLoiNhuan
+            : 0;
+
+        // Tính giá bán mới
+        const importPrice = Number(item.DonGiaMua);
+        const newSellingPrice =
+          importPrice + (importPrice * profitPercent) / 100;
+
+        // Cập nhật vào bảng Sản Phẩm
+        await connection.execute(
+          `
+          UPDATE sanpham 
+          SET 
+            SoLuongTon = SoLuongTon + ?, 
+            DonGiaMuaVao = ?,
+            DonGiaBanRa = ?
+          WHERE MaSanPham = ?
+        `,
+          [item.SoLuongMua, importPrice, newSellingPrice, item.MaSanPham]
+        );
+      }
     }
     return true;
   },
@@ -76,11 +111,14 @@ const PurchaseModel = {
       [NgayLap || new Date(), MaNCC, TongTien || 0, SoPhieuMH]
     );
     // Replace items: delete old and insert new
-    await connection.query(`DELETE FROM chitietmuahang WHERE SoPhieuMH = ?`, [SoPhieuMH]);
+    await connection.query(`DELETE FROM chitietmuahang WHERE SoPhieuMH = ?`, [
+      SoPhieuMH,
+    ]);
     if (items && items.length > 0) {
       const insertQuery = `INSERT INTO chitietmuahang (MaChiTietMH, SoPhieuMH, MaSanPham, SoLuongMua, DonGiaMua, ThanhTien) VALUES ?`;
       const values = items.map((it) => [
-        it.MaChiTietMH || `CTMH${Date.now()}${Math.floor(Math.random() * 1000)}`,
+        it.MaChiTietMH ||
+          `CTMH${Date.now()}${Math.floor(Math.random() * 1000)}`,
         SoPhieuMH,
         it.MaSanPham,
         it.SoLuongMua || 0,
@@ -95,13 +133,35 @@ const PurchaseModel = {
   deletePurchases: async (ids) => {
     if (!ids || ids.length === 0) return 0;
     const placeholders = ids.map(() => "?").join(",");
-    // delete details first
-    await connection.query(`DELETE FROM chitietmuahang WHERE SoPhieuMH IN (${placeholders})`, ids);
-    const [result] = await connection.query(
-      `DELETE FROM phieumuahang WHERE SoPhieuMH IN (${placeholders})`,
-      ids
-    );
-    return result.affectedRows;
+    try {
+      //Lấy danh sách sản phẩm trong các phiếu sắp xóa
+      const [itemsToDelete] = await connection.query(
+        `SELECT MaSanPham, SoLuongMua FROM chitietmuahang WHERE SoPhieuMH IN (${placeholders})`,
+        ids
+      );
+
+      //Hoàn tác số lượng tồn kho
+      if (itemsToDelete && itemsToDelete.length > 0) {
+        for (const item of itemsToDelete) {
+          await connection.execute(
+            `UPDATE sanpham SET SoLuongTon = SoLuongTon - ? WHERE MaSanPham = ?`,
+            [item.SoLuongMua, item.MaSanPham]
+          );
+        }
+      }
+      // delete details first
+      await connection.query(
+        `DELETE FROM chitietmuahang WHERE SoPhieuMH IN (${placeholders})`,
+        ids
+      );
+      const [result] = await connection.query(
+        `DELETE FROM phieumuahang WHERE SoPhieuMH IN (${placeholders})`,
+        ids
+      );
+      return result.affectedRows;
+    } catch (error) {
+      throw error;
+    }
   },
 };
 
