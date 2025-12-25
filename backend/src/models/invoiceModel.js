@@ -1,5 +1,35 @@
 import { connection } from "../config/connectDB.js";
 
+const checkStockAvailability = async (items) => {
+  if (!items || items.length === 0) return;
+
+  for (const item of items) {
+    const maSP = item.MaSanPham;
+    const soLuongMua = Number(item.SoLuongBan) || 0;
+
+    // Lấy số lượng tồn hiện tại trong DB
+    const [rows] = await connection.execute(
+      "SELECT TenSanPham, SoLuongTon FROM sanpham WHERE MaSanPham = ?",
+      [maSP]
+    );
+
+    if (rows.length === 0) {
+      throw new Error(`Sản phẩm ${maSP} không tồn tại`);
+    }
+
+    const currentStock = Number(rows[0].SoLuongTon) || 0;
+
+    // Nếu mua nhiều hơn tồn -> Báo lỗi ngay lập tức
+    if (soLuongMua > currentStock) {
+      const err = new Error(
+        `Sản phẩm "${rows[0].TenSanPham}" chỉ còn tồn ${currentStock}, không đủ để bán ${soLuongMua}`
+      );
+      err.code = "OUT_OF_STOCK"; // Gắn code để Frontend dễ xử lý
+      throw err;
+    }
+  }
+};
+
 const InvoiceModel = {
   getAllInvoices: async (search) => {
     try {
@@ -77,6 +107,8 @@ const InvoiceModel = {
   createInvoice: async (data) => {
     try {
       const { SoPhieuBH, NgayLap, MaKH, TongTien, items } = data;
+      //Kiểm tra tồn kho
+      await checkStockAvailability(items);
       // check duplicate SoPhieuBH
       const [dups] = await connection.execute(
         `SELECT 1 FROM phieubanhang WHERE SoPhieuBH = ? LIMIT 1`,
@@ -114,6 +146,7 @@ const InvoiceModel = {
   updateInvoice: async (data) => {
     try {
       const { SoPhieuBH, NgayLap, MaKH, TongTien, items } = data;
+      await checkStockAvailability(items);
       await connection.query(
         `UPDATE phieubanhang SET NgayLap = ?, MaKH = ?, TongTien = ? WHERE SoPhieuBH = ?`,
         [NgayLap || new Date(), MaKH, TongTien || 0, SoPhieuBH]
