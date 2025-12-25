@@ -35,7 +35,7 @@ const COLORS = [
 const Dashboard = () => {
   const [stats, setStats] = useState({
     products: 0,
-    categories: 0,
+    servicestypes: 0,
     customers: 0,
     orders: 0,
   });
@@ -143,10 +143,11 @@ const Dashboard = () => {
         </div>
         <div className="card">
           <div className="card-inner">
-            <h3>LOẠI SẢN PHẨM</h3>
+            <h3>LOẠI DỊCH VỤ</h3>
             <BsFillGrid3X3GapFill className="card_icon" />
           </div>
-          <h1>{stats.categories}</h1>
+
+          <h1>{stats.servicestypes}</h1>
         </div>
         <div className="card">
           <div className="card-inner">
@@ -222,7 +223,7 @@ const Dashboard = () => {
               }}
             >
               <h3>Số lượng đơn hàng</h3>
-              <ResponsiveContainer width="100%" height="100%">
+              <ResponsiveContainer width="100%" height="90%">
                 <BarChart data={orderData}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis
@@ -255,7 +256,7 @@ const Dashboard = () => {
               }}
             >
               <h3>Tỷ trọng doanh thu theo danh mục (Năm 2025)</h3>
-              <ResponsiveContainer width="100%" height="100%">
+              <ResponsiveContainer width="100%" height="80%">
                 <PieChart>
                   <Pie
                     data={categoryData}
