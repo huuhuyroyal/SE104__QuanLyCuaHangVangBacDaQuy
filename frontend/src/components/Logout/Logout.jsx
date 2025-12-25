@@ -5,7 +5,7 @@ const Logout = ({ onConfirm, onCancel }) => {
   return (
     <div className="logout-overlay" onClick={onCancel}>
       <div className="logout-box" onClick={(e) => e.stopPropagation()}>
-        <span>Bạn có chắc muốn đăng xuất</span>
+        <span>Bạn có chắc chắn muốn đăng xuất</span>
         <div className="logout-actions">
           <button className="btn-cancel" onClick={onCancel}>
             Hủy

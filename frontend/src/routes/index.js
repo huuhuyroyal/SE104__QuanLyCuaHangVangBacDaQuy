@@ -11,6 +11,7 @@ import ServiceType from "../page/ServiceType/ServiceType";
 import ServiceTicket from "../page/ServiceTicket/ServiceTicket";
 import ListCustomer from "../page/ListCustomer/ListCustomer";
 import DetailCustomer from "../page/DetailCustomer/DetailCustomer";
+import Profile from "../page/Profile/Profile";
 import Title from "antd/es/skeleton/Title";
 
 export const routes = [
@@ -63,10 +64,10 @@ export const routes = [
     isShowSidebar: true,
   },
   {
-  path: "/ProductType",
-  Title: "Quản lý loại sản phẩm",
-  component: ProductType,
-  isShowSidebar: true,
+    path: "/ProductType",
+    Title: "Quản lý loại sản phẩm",
+    component: ProductType,
+    isShowSidebar: true,
   },
   {
     path: "/ServiceType",
@@ -97,6 +98,9 @@ export const routes = [
     path: "/Customer",
     component: ListCustomer,
     Title: "Quản lý khách hàng",
+    path: "/Profile",
+    Title: "Quản lý tài khoản",
+    component: Profile,
     isShowSidebar: true,
   },
 ];

@@ -14,6 +14,12 @@ export const createTypeService = async (data) => {
     await ProductTypeModel.create(data);
     return { errCode: 0, message: "Thêm thành công!" };
   } catch (error) {
+    if (error.code === 'ER_DUP_ENTRY' || error.errno === 1062) {
+      return { 
+        errCode: 2, 
+        message: `Mã loại sản phẩm '${data.MaLoaiSanPham}' đã tồn tại!` 
+      };
+    }
     return { errCode: 1, message: "Lỗi khi thêm loại sản phẩm" };
   }
 };

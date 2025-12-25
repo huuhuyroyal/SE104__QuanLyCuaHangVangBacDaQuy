@@ -1,7 +1,17 @@
 import axios from "./axios";
 
 const getAllProductsService = () => {
-  return axios.get("/api/products");
+  const res = axios.get("/api/products");
+
+  if (res && res.data) {
+    res.data = res.data.map((product) => ({
+      ...product,
+
+      DonGiaMua: product.DonGiaMuaVao || product.DonGiaMua || 0,
+    }));
+  }
+
+  return res;
 };
 export const getAllCategoriesService = () => {
   return axios.get("/api/categories");
