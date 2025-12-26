@@ -143,36 +143,6 @@ const InvoiceModel = {
       throw error;
     }
   },
-  updateInvoice: async (data) => {
-    try {
-      const { SoPhieuBH, NgayLap, MaKH, TongTien, items } = data;
-      await checkStockAvailability(items);
-      await connection.query(
-        `UPDATE phieubanhang SET NgayLap = ?, MaKH = ?, TongTien = ? WHERE SoPhieuBH = ?`,
-        [NgayLap || new Date(), MaKH, TongTien || 0, SoPhieuBH]
-      );
-      // Replace items: delete old and insert new
-      await connection.query(`DELETE FROM chitietbanhang WHERE SoPhieuBH = ?`, [
-        SoPhieuBH,
-      ]);
-      if (items && items.length > 0) {
-        const insertQuery = `INSERT INTO chitietbanhang (MaChiTietBH, SoPhieuBH, MaSanPham, SoLuongBan, DonGiaBan, ThanhTien) VALUES ?`;
-        const values = items.map((it) => [
-          it.MaChiTietBH ||
-            `CT${Date.now()}${Math.floor(Math.random() * 1000)}`,
-          SoPhieuBH,
-          it.MaSanPham,
-          it.SoLuongBan || 0,
-          it.DonGiaBan || 0,
-          it.ThanhTien || 0,
-        ]);
-        await connection.query(insertQuery, [values]);
-      }
-      return true;
-    } catch (error) {
-      throw error;
-    }
-  },
   deleteInvoices: async (ids) => {
     if (!ids || ids.length === 0) return 0;
     try {

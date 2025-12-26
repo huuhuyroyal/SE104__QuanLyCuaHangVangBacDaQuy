@@ -45,7 +45,11 @@ const MENU_ITEMS = [
     icon: "/ql_phieu_dich_vu.svg",
   },
   { path: "/Customer", label: "Quản lý khách hàng", icon: "/qlkh.svg" },
-  { path: "/ListEmployee", label: "Quản lý nhân viên", icon: "/ql_nhan_vien.svg" },
+  {
+    path: "/ListEmployee",
+    label: "Quản lý nhân viên",
+    icon: "/ql_nhan_vien.svg",
+  },
 ];
 
 const Sidebar = () => {

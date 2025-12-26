@@ -29,7 +29,7 @@ const ServiceTicket = () => {
   const [loading, setLoading] = useState(false);
   const [customers, setCustomers] = useState([]);
   const [serviceTypes, setServiceTypes] = useState([]);
-  
+
   // Search state with debounce
   const [searchText, setSearchText] = useState("");
   const [searchTimeout, setSearchTimeout] = useState(null);
@@ -123,7 +123,7 @@ const ServiceTicket = () => {
         DonGiaDuocTinh: 0,
         ThanhTien: 0,
         TraTruoc: 0,
-        PhanTramTraTruoc: 0, 
+        PhanTramTraTruoc: 0,
       },
     ]);
   };
@@ -143,10 +143,14 @@ const ServiceTicket = () => {
       }
     }
 
-    if (field === "MaLoaiDV" || field === "SoLuong" || field === "DonGiaDuocTinh") {
+    if (
+      field === "MaLoaiDV" ||
+      field === "SoLuong" ||
+      field === "DonGiaDuocTinh"
+    ) {
       item.ThanhTien = item.SoLuong * item.DonGiaDuocTinh;
       const type = serviceTypes.find((t) => t.MaLoaiDV === item.MaLoaiDV);
-      const percent = type ? type.PhanTramTraTruoc : (item.PhanTramTraTruoc || 0);
+      const percent = type ? type.PhanTramTraTruoc : item.PhanTramTraTruoc || 0;
       item.TraTruoc = item.ThanhTien * percent;
     }
 
@@ -169,7 +173,9 @@ const ServiceTicket = () => {
       const values = await form.validateFields();
 
       if (items.length === 0) {
-        return message.error("Vui lòng thêm ít nhất một dịch vụ vào danh sách!");
+        return message.error(
+          "Vui lòng thêm ít nhất một dịch vụ vào danh sách!"
+        );
       }
 
       const hasInvalidItem = items.some(
@@ -184,13 +190,16 @@ const ServiceTicket = () => {
 
       let finalDateStr;
       if (values.NgayLap) {
-        const timePart = new Date().toLocaleTimeString('en-GB');
+        const timePart = new Date().toLocaleTimeString("en-GB");
         finalDateStr = `${values.NgayLap} ${timePart}`;
       } else {
-         const now = new Date();
-         const offsetMs = now.getTimezoneOffset() * 60 * 1000;
-         const msLocal = now.getTime() - offsetMs;
-         finalDateStr = new Date(msLocal).toISOString().slice(0, 19).replace("T", " ");
+        const now = new Date();
+        const offsetMs = now.getTimezoneOffset() * 60 * 1000;
+        const msLocal = now.getTime() - offsetMs;
+        finalDateStr = new Date(msLocal)
+          .toISOString()
+          .slice(0, 19)
+          .replace("T", " ");
       }
 
       const payload = {
@@ -253,16 +262,18 @@ const ServiceTicket = () => {
 
   const handleUpdateStatus = async () => {
     if (!checkActionPermission(["seller", "admin"], false))
-      return message.error("Bạn không có quyền cập nhật trạng thái phiếu dịch vụ");
+      return message.error(
+        "Bạn không có quyền cập nhật trạng thái phiếu dịch vụ"
+      );
 
     if (!selectedTicket) return;
-    
+
     // Sử dụng targetStatus từ Select
     const res = await ticketService.updateServiceTicketStatus(
       selectedTicket.ticket.SoPhieuDV,
       targetStatus
     );
-    
+
     if (res.errCode === 0) {
       message.success(`Đã cập nhật trạng thái thành: ${targetStatus}`);
       setIsDetailOpen(false);
@@ -279,11 +290,15 @@ const ServiceTicket = () => {
     }).format(val);
 
   const getStatusColor = (status) => {
-    switch(status) {
-      case 'Hoàn thành': return 'green';
-      case 'Đã hủy': return 'red';
-      case 'Đã giao': return 'blue';
-      default: return 'orange';
+    switch (status) {
+      case "Hoàn thành":
+        return "green";
+      case "Đã hủy":
+        return "red";
+      case "Đã giao":
+        return "blue";
+      default:
+        return "orange";
     }
   };
 
@@ -317,9 +332,7 @@ const ServiceTicket = () => {
     {
       title: "Tình trạng",
       dataIndex: "TinhTrang",
-      render: (val) => (
-        <Tag color={getStatusColor(val)}>{val}</Tag>
-      ),
+      render: (val) => <Tag color={getStatusColor(val)}>{val}</Tag>,
     },
     {
       title: "Thao tác",
@@ -341,7 +354,7 @@ const ServiceTicket = () => {
         <Input.Search
           placeholder="Tìm theo mã phiếu hoặc tên KH..."
           style={{ width: 300 }}
-          onChange={handleSearchChange} 
+          onChange={handleSearchChange}
           value={searchText}
         />
         <div className="add-section">
@@ -579,11 +592,14 @@ const ServiceTicket = () => {
             In phiếu
           </Button>,
           // Group Select và Button Cập nhật
-          <div key="status-controls" style={{ display: 'inline-flex', gap: 8, margin: '0 8px' }}>
-            <Select 
+          <div
+            key="status-controls"
+            style={{ display: "inline-flex", gap: 8, margin: "0 8px" }}
+          >
+            <Select
               value={targetStatus}
               onChange={setTargetStatus}
-              style={{ width: 140, textAlign: 'left' }}
+              style={{ width: 140, textAlign: "left" }}
               options={[
                 { value: "Đang xử lý", label: "Đang xử lý" },
                 { value: "Hoàn thành", label: "Hoàn thành" },
@@ -596,7 +612,10 @@ const ServiceTicket = () => {
               type="primary"
               onClick={handleUpdateStatus}
               // Disable nút cập nhật nếu chưa chọn status hoặc status không đổi
-              disabled={!targetStatus || targetStatus === selectedTicket?.ticket?.TinhTrang}
+              disabled={
+                !targetStatus ||
+                targetStatus === selectedTicket?.ticket?.TinhTrang
+              }
             >
               Cập nhật
             </Button>

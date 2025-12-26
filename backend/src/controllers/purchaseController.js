@@ -2,7 +2,6 @@ import {
   getAllPurchasesService,
   getPurchaseByIdService,
   createPurchaseService,
-  updatePurchaseService,
   deletePurchasesService,
 } from "../service/purchaseService.js";
 
@@ -32,7 +31,9 @@ const createPurchase = async (req, res) => {
   try {
     const data = req.body;
     if (!data.SoPhieuMH || !data.MaNCC) {
-      return res.status(400).json({ errCode: 1, message: "Thiếu thông tin phiếu" });
+      return res
+        .status(400)
+        .json({ errCode: 1, message: "Thiếu thông tin phiếu" });
     }
     const response = await createPurchaseService(data);
     if (response.errCode && response.errCode !== 0) {
@@ -46,25 +47,13 @@ const createPurchase = async (req, res) => {
   }
 };
 
-const updatePurchase = async (req, res) => {
-  try {
-    const data = req.body;
-    if (!data.SoPhieuMH) {
-      return res.status(400).json({ errCode: 1, message: "Thiếu mã phiếu" });
-    }
-    const response = await updatePurchaseService(data);
-    return res.status(200).json(response);
-  } catch (error) {
-    console.error("Lỗi Controller Purchase update:", error);
-    return res.status(500).json({ errCode: -1, message: "Lỗi Server" });
-  }
-};
-
 const deletePurchases = async (req, res) => {
   try {
     const { ids } = req.body;
     if (!ids || ids.length === 0) {
-      return res.status(400).json({ errCode: 1, message: "Không có phiếu để xóa" });
+      return res
+        .status(400)
+        .json({ errCode: 1, message: "Không có phiếu để xóa" });
     }
     const response = await deletePurchasesService(ids);
     return res.status(200).json(response);
@@ -78,6 +67,5 @@ export default {
   getPurchases,
   getPurchaseById,
   createPurchase,
-  updatePurchase,
   deletePurchases,
 };

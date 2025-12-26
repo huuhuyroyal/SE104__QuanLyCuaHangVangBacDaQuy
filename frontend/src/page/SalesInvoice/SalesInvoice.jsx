@@ -22,7 +22,6 @@ import {
 import {
   getInvoicesService,
   createInvoiceService,
-  updateInvoiceService,
   deleteInvoicesService,
   getInvoiceByIdService,
 } from "../../services/invoiceService";
@@ -267,7 +266,6 @@ const SalesInvoice = () => {
         message.error("Mã này đã tồn tại");
         return;
       }
-      console.log(" Gửi payload:", payload);
       // validate quantities against stock
       const over = items.find(
         (it) =>
@@ -280,13 +278,8 @@ const SalesInvoice = () => {
         );
         return;
       }
-      if (editing) {
-        await updateInvoiceService(payload);
-        message.success("Cập nhật phiếu thành công");
-      } else {
-        await createInvoiceService(payload);
-        message.success("Thêm phiếu thành công");
-      }
+      await createInvoiceService(payload);
+      message.success("Thêm phiếu thành công");
       setVisible(false);
       fetchInvoices();
     } catch (err) {
@@ -477,14 +470,6 @@ const SalesInvoice = () => {
           <Button size="small" onClick={() => openDetail(record)}>
             Xem
           </Button>
-          <Button
-            type="primary"
-            icon={<EditOutlined />}
-            onClick={() => openEdit(record)}
-            size="small"
-          >
-            Sửa
-          </Button>
         </Space>
       ),
     },
@@ -547,7 +532,7 @@ const SalesInvoice = () => {
 
       <Modal
         open={visible}
-        title={editing ? `Chỉnh sửa ${editing}` : "Tạo phiếu bán"}
+        title={"Tạo phiếu bán"}
         onCancel={() => setVisible(false)}
         onOk={handleSave}
         cancelText="Hủy"

@@ -104,32 +104,6 @@ const PurchaseModel = {
     return true;
   },
 
-  updatePurchase: async (data) => {
-    const { SoPhieuMH, NgayLap, MaNCC, TongTien, items } = data;
-    await connection.query(
-      `UPDATE phieumuahang SET NgayLap = ?, MaNCC = ?, TongTien = ? WHERE SoPhieuMH = ?`,
-      [NgayLap || new Date(), MaNCC, TongTien || 0, SoPhieuMH]
-    );
-    // Replace items: delete old and insert new
-    await connection.query(`DELETE FROM chitietmuahang WHERE SoPhieuMH = ?`, [
-      SoPhieuMH,
-    ]);
-    if (items && items.length > 0) {
-      const insertQuery = `INSERT INTO chitietmuahang (MaChiTietMH, SoPhieuMH, MaSanPham, SoLuongMua, DonGiaMua, ThanhTien) VALUES ?`;
-      const values = items.map((it) => [
-        it.MaChiTietMH ||
-          `CTMH${Date.now()}${Math.floor(Math.random() * 1000)}`,
-        SoPhieuMH,
-        it.MaSanPham,
-        it.SoLuongMua || 0,
-        it.DonGiaMua || 0,
-        it.ThanhTien || 0,
-      ]);
-      await connection.query(insertQuery, [values]);
-    }
-    return true;
-  },
-
   deletePurchases: async (ids) => {
     if (!ids || ids.length === 0) return 0;
     const placeholders = ids.map(() => "?").join(",");

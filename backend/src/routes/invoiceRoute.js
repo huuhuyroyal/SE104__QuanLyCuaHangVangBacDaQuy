@@ -26,12 +26,6 @@ const initInvoiceRoute = (app) => {
     invoiceController.createInvoice
   );
   router.post(
-    "/api/invoices/update",
-    verifyRole.verifyToken,
-    verifyRole.checkPermission(["seller"]),
-    invoiceController.updateInvoice
-  );
-  router.post(
     "/api/invoices/delete",
     verifyRole.verifyToken,
     verifyRole.checkPermission(["admin"]),

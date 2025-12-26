@@ -21,7 +21,6 @@ import {
 import {
   getPurchasesService,
   createPurchaseService,
-  updatePurchaseService,
   deletePurchasesService,
   getPurchaseByIdService,
 } from "../../services/purchaseService";
@@ -111,39 +110,6 @@ const PurchaseInvoice = () => {
     setVisible(true);
   };
 
-  const openEdit = async (record) => {
-    if (!checkActionPermission(["warehouse"], false)) {
-      return message.error("Liên hệ với Thủ kho để sửa phiếu mua hàng");
-    }
-    try {
-      const res = await getPurchaseByIdService(record.SoPhieuMH);
-      if (res && res.data) {
-        const { purchase, items: fetchedItems } = res.data;
-        setEditing(purchase.SoPhieuMH);
-        form.setFieldsValue({
-          SoPhieuMH: purchase.SoPhieuMH,
-          NgayLap: purchase.NgayLap
-            ? toDateYMD(new Date(purchase.NgayLap))
-            : "",
-          MaNCC: purchase.MaNCC,
-          TenNCC: purchase.TenNCC,
-        });
-        setSelectedSupplier({ MaNCC: purchase.MaNCC, TenNCC: purchase.TenNCC });
-        // Enrich items with product data
-        const enriched = fetchedItems.map((it) => ({
-          ...it,
-          SoLuongMua: it.SoLuongMua || 0,
-          DonGiaMua: it.DonGiaMua || 0,
-          ThanhTien: it.ThanhTien || 0,
-        }));
-        setItems(enriched);
-        setVisible(true);
-      }
-    } catch (err) {
-      message.error("Lỗi tải chi tiết phiếu");
-    }
-  };
-
   const openProductSelector = async () => {
     try {
       const res = await getAllProductsService();
@@ -208,13 +174,10 @@ const PurchaseInvoice = () => {
         TongTien: calcTotal(),
         items: items.map((it) => ({ ...it })),
       };
-      if (editing) {
-        await updatePurchaseService(payload);
-        message.success("Cập nhật phiếu mua thành công");
-      } else {
-        await createPurchaseService(payload);
-        message.success("Tạo phiếu mua thành công");
-      }
+
+      await createPurchaseService(payload);
+      message.success("Tạo phiếu mua thành công");
+
       setVisible(false);
       fetchPurchases(search.trim());
     } catch (err) {
@@ -322,14 +285,6 @@ const PurchaseInvoice = () => {
         <div style={{ display: "flex", gap: 8 }}>
           <Button size="small" onClick={() => openDetail(record)}>
             Xem
-          </Button>
-          <Button
-            type="primary"
-            icon={<EditOutlined />}
-            size="small"
-            onClick={() => openEdit(record)}
-          >
-            Sửa
           </Button>
         </div>
       ),

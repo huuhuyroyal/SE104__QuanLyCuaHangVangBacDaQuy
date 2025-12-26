@@ -33,20 +33,14 @@ export const createPurchaseService = async (data) => {
   }
 };
 
-export const updatePurchaseService = async (data) => {
-  try {
-    await PurchaseModel.updatePurchase(data);
-    return { errCode: 0, message: "Cập nhật phiếu mua thành công" };
-  } catch (error) {
-    console.error("Lỗi updatePurchaseService:", error);
-    return { errCode: 1, message: "Lỗi Server khi cập nhật phiếu" };
-  }
-};
-
 export const deletePurchasesService = async (ids) => {
   try {
     const deleted = await PurchaseModel.deletePurchases(ids);
-    return { errCode: 0, message: `Đã xóa ${deleted} phiếu mua`, data: deleted };
+    return {
+      errCode: 0,
+      message: `Đã xóa ${deleted} phiếu mua`,
+      data: deleted,
+    };
   } catch (error) {
     console.error("Lỗi deletePurchasesService:", error);
     return { errCode: 1, message: "Lỗi Server khi xóa phiếu" };

@@ -26,20 +26,14 @@ export const createInvoiceService = async (data) => {
     return { errCode: 0, message: "Tạo phiếu thành công" };
   } catch (error) {
     console.error("Lỗi createInvoiceService:", error);
-    if (error && (error.code === 'DUPLICATE_INVOICE' || error.message === 'DUPLICATE_INVOICE')) {
+    if (
+      error &&
+      (error.code === "DUPLICATE_INVOICE" ||
+        error.message === "DUPLICATE_INVOICE")
+    ) {
       return { errCode: 2, message: "Mã phiếu đã tồn tại" };
     }
     return { errCode: 1, message: "Lỗi Server khi tạo phiếu" };
-  }
-};
-
-export const updateInvoiceService = async (data) => {
-  try {
-    await InvoiceModel.updateInvoice(data);
-    return { errCode: 0, message: "Cập nhật phiếu thành công" };
-  } catch (error) {
-    console.error("Lỗi updateInvoiceService:", error);
-    return { errCode: 1, message: "Lỗi Server khi cập nhật phiếu" };
   }
 };
 

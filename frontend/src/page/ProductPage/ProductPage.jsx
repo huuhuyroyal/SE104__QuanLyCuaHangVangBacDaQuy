@@ -87,7 +87,7 @@ const ProductPage = () => {
           ProductID: item.MaSanPham,
           category: item.TenLoaiSanPham || "Chưa phân loại",
           categoryId: item.MaLoaiSanPham,
-          stock: item.SoLuongTon,
+          stock: item.TonKhoThucTe,
           price: new Intl.NumberFormat("vi-VN", {
             style: "currency",
             currency: "VND",

@@ -24,12 +24,6 @@ const initPurchaseRoute = (app) => {
     purchaseController.createPurchase
   );
   router.post(
-    "/api/purchases/update",
-    verifyRole.verifyToken,
-    verifyRole.checkPermission(["admin", "warehouse"]),
-    purchaseController.updatePurchase
-  );
-  router.post(
     "/api/purchases/delete",
     verifyRole.verifyToken,
     verifyRole.checkPermission(["admin"]),

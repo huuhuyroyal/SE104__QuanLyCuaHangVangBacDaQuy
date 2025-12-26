@@ -3,7 +3,6 @@ import { Form, Input, Button, message, Card } from "antd";
 import { UserOutlined, LockOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import { handleLoginApi } from "../../services/authService";
-import "./LoginPage.css";
 
 const LoginPage = () => {
   const navigate = useNavigate();
@@ -102,6 +101,9 @@ const LoginPage = () => {
               className="login-form-button"
               loading={loading}
               block
+              style={{
+                color: "white",
+              }}
             >
               ĐĂNG NHẬP
             </Button>
