@@ -13,10 +13,6 @@ export const createInvoiceService = (data) => {
   return axios.post("/api/invoices/create", data);
 };
 
-export const updateInvoiceService = (data) => {
-  return axios.post("/api/invoices/update", data);
-};
-
 export const deleteInvoicesService = (ids) => {
   return axios.post("/api/invoices/delete", { ids });
 };

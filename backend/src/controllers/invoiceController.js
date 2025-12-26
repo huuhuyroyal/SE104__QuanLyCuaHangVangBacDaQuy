@@ -2,7 +2,6 @@ import {
   getAllInvoicesService,
   getInvoiceByIdService,
   createInvoiceService,
-  updateInvoiceService,
   deleteInvoicesService,
 } from "../service/invoiceService.js";
 
@@ -32,7 +31,9 @@ const createInvoice = async (req, res) => {
   try {
     const data = req.body;
     if (!data.SoPhieuBH || !data.MaKH) {
-      return res.status(400).json({ errCode: 1, message: "Thiếu thông tin phiếu" });
+      return res
+        .status(400)
+        .json({ errCode: 1, message: "Thiếu thông tin phiếu" });
     }
     const response = await createInvoiceService(data);
     if (response.errCode && response.errCode !== 0) {
@@ -46,25 +47,13 @@ const createInvoice = async (req, res) => {
   }
 };
 
-const updateInvoice = async (req, res) => {
-  try {
-    const data = req.body;
-    if (!data.SoPhieuBH) {
-      return res.status(400).json({ errCode: 1, message: "Thiếu mã phiếu" });
-    }
-    const response = await updateInvoiceService(data);
-    return res.status(200).json(response);
-  } catch (error) {
-    console.error("Lỗi Controller Invoice update:", error);
-    return res.status(500).json({ errCode: -1, message: "Lỗi Server" });
-  }
-};
-
 const deleteInvoices = async (req, res) => {
   try {
     const { ids } = req.body;
     if (!ids || ids.length === 0) {
-      return res.status(400).json({ errCode: 1, message: "Không có phiếu để xóa" });
+      return res
+        .status(400)
+        .json({ errCode: 1, message: "Không có phiếu để xóa" });
     }
     const response = await deleteInvoicesService(ids);
     return res.status(200).json(response);
@@ -78,6 +67,5 @@ export default {
   getInvoices,
   getInvoiceById,
   createInvoice,
-  updateInvoice,
   deleteInvoices,
 };

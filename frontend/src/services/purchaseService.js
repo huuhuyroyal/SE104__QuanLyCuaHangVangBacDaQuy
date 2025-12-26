@@ -13,10 +13,6 @@ export const createPurchaseService = (data) => {
   return axios.post("/api/purchases/create", data);
 };
 
-export const updatePurchaseService = (data) => {
-  return axios.post("/api/purchases/update", data);
-};
-
 export const deletePurchasesService = (ids) => {
   return axios.post("/api/purchases/delete", { ids });
 };

@@ -25,15 +25,11 @@ const initProductRoute = (app) => {
   router.post(
     "/api/products/create",
     upload.single("HinhAnh"),
-    verifyRole.verifyToken,
-    verifyRole.checkPermission(["admin", "warehouse"]),
     productController.createNewProducts
   );
   router.post(
     "/api/products/update",
     upload.single("HinhAnh"),
-    verifyRole.verifyToken,
-    verifyRole.checkPermission(["admin", "warehouse"]),
     productController.updateProducts
   );
   return app.use("/", router);

@@ -204,12 +204,14 @@ const ProductPage = () => {
       formData.append("MaLoaiSanPham", values.MaLoaiSanPham);
       // Xử lý khi upload ảnh
       if (fileList.length > 0) {
-        if (fileList[0].originFileObj) {
-          // user upload ảnh mới
-          formData.append("HinhAnh", fileList[0].originFileObj);
-        } else if (fileList[0].url) {
-          // user giữ nguyên ảnh cũ
-          formData.append("HinhAnh", fileList[0].url);
+        const file = fileList[0];
+
+        if (file.originFileObj) {
+          formData.append("HinhAnh", file.originFileObj);
+        } else if (file instanceof File) {
+          formData.append("HinhAnh", file);
+        } else if (file.url) {
+          formData.append("HinhAnh", file.url);
         }
       }
 

@@ -116,6 +116,7 @@ const createNewProducts = async (req, res) => {
     // xử lý ảnh
     if (file) {
       data.HinhAnh = file.path;
+    } else if (data.HinhAnh) {
     } else {
       data.HinhAnh = "#";
     }
