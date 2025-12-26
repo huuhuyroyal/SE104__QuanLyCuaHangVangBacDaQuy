@@ -56,17 +56,24 @@ const CustomerList = () => {
   const handleAddCustomer = async (values) => {
     try {
       const customerData = {
+        MaKH: values.MaKH,
         TenKH: values.TenKH,
         SoDienThoai: values.SoDienThoai,
         DiaChi: values.DiaChi,
       };
-      await customerService.createCustomer(customerData);
-      message.success("Thêm khách hàng thành công!");
-      setIsAddModalVisible(false);
-      addForm.resetFields();
-      fetchCustomers();
+      const res = await customerService.createCustomer(customerData);
+      if (res && res.errCode === 0) {
+        message.success("Thêm khách hàng thành công!");
+        setIsAddModalVisible(false);
+        addForm.resetFields();
+        fetchCustomers();
+      } else {
+        message.error(res.message || "Thêm thất bại, vui lòng kiểm tra lại!");
+      }
     } catch (error) {
-      message.error("Lỗi khi thêm khách hàng");
+      // Lỗi hệ thống/mạng
+      console.error(error);
+      message.error("Lỗi hệ thống khi thêm khách hàng");
     }
   };
 
@@ -75,17 +82,23 @@ const CustomerList = () => {
     Modal.confirm({
       title: "Xác nhận xóa khách hàng?",
       content:
-        "Hành động này sẽ xóa toàn bộ lịch sử hóa đơn liên quan đến khách hàng này.",
-      okText: "Xóa",
+        "Hành động này sẽ xóa toàn bộ lịch sử hóa đơn và thông tin liên quan.",
+      okText: "Xóa vĩnh viễn",
       okType: "danger",
       cancelText: "Hủy",
       onOk: async () => {
         try {
-          await customerService.deleteCustomer(id);
-          message.success("Đã xóa khách hàng thành công");
-          fetchCustomers();
+          const res = await customerService.deleteCustomer(id);
+          console.log("Delete response:", res);
+          if (res && res.errCode === 0) {
+            message.success("Đã xóa khách hàng thành công");
+            fetchCustomers();
+          } else {
+            message.error(res.message || "Lỗi khi xóa khách hàng");
+          }
         } catch (error) {
-          message.error("Lỗi khi xóa khách hàng");
+          message.error("Lỗi hệ thống");
+          console.error(error);
         }
       },
     });
@@ -155,9 +168,6 @@ const CustomerList = () => {
               onChange={(e) => setSearchText(e.target.value)}
             />
             <Space>
-              <Button icon={<ExportOutlined />} className="btn-export">
-                Xuất file
-              </Button>
               <Button
                 type="primary"
                 icon={<PlusOutlined />}
@@ -195,6 +205,16 @@ const CustomerList = () => {
             onFinish={handleAddCustomer}
             className="add-customer-form"
           >
+            <Form.Item
+              name="MaKH"
+              label="Mã khách hàng"
+              rules={[
+                { required: true, message: "Vui lòng nhập mã khách hàng!" },
+                { max: 10, message: "Mã khách hàng tối đa 10 ký tự!" }, // Ví dụ validation
+              ]}
+            >
+              <Input placeholder="Ví dụ: KH001" />
+            </Form.Item>
             <Form.Item
               name="TenKH"
               label="Họ và tên"

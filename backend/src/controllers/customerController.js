@@ -44,10 +44,16 @@ const customerController = {
 
   deleteCustomer: async (req, res) => {
     try {
-      const result = await customerService.deleteCustomer(req.params.id);
-      res.status(200).json(result);
+      const { id } = req.params;
+
+      const result = await customerService.deleteCustomer(id);
+
+      return res.status(200).json(result);
     } catch (error) {
-      res.status(500).json({ errCode: -1, message: "Lỗi server" });
+      console.error(error);
+      return res
+        .status(500)
+        .json({ errCode: -1, message: "Lỗi nội bộ Server" });
     }
   },
 };

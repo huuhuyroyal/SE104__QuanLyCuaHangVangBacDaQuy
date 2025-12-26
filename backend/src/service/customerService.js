@@ -25,36 +25,49 @@ const customerService = {
         return { errCode: 1, message: "Không tìm thấy khách hàng" };
       }
       const orders = await CustomerModel.getOrders(maKH);
-      const totalSpending = orders.reduce((sum, item) => sum + (Number(item.total) || 0), 0);
+      const totalSpending = orders.reduce(
+        (sum, item) => sum + (Number(item.total) || 0),
+        0
+      );
       const totalOrders = orders.length;
       const finalData = {
-        ...customer,          
-        orderHistory: orders, 
+        ...customer,
+        orderHistory: orders,
         TongChiTieu: totalSpending,
-        SoLuongDonHang: totalOrders
+        SoLuongDonHang: totalOrders,
       };
 
       return { errCode: 0, message: "OK", data: finalData };
     } catch (error) {
       console.error("Error in getCustomerById:", error);
-      return { errCode: 1, message: "Lỗi lấy chi tiết khách hàng", error: error.message };
+      return {
+        errCode: 1,
+        message: "Lỗi lấy chi tiết khách hàng",
+        error: error.message,
+      };
     }
   },
   createCustomer: async (data) => {
     try {
+      // 1. Kiểm tra bắt buộc phải có MaKH
       if (!data.MaKH || !data.TenKH || !data.SoDienThoai) {
         return {
           errCode: 1,
-          message: "Thiếu thông tin bắt buộc: Mã KH, Tên, hoặc SĐT",
+          message: "Vui lòng nhập đầy đủ: Mã KH, Tên, Số điện thoại!",
         };
       }
+
       await CustomerModel.create(data);
       return { errCode: 0, message: "Tạo thành công" };
     } catch (e) {
+      // Bắt lỗi trùng Mã Khách Hàng (Duplicate entry)
       if (e.code === "ER_DUP_ENTRY") {
-        return { errCode: 1, message: "Mã khách hàng này đã tồn tại!" };
+        return {
+          errCode: 1,
+          message: `Mã khách hàng '${data.MaKH}'đã tồn tại!`,
+        };
       }
-      return { errCode: 1, message: "Lỗi khi tạo: " + e.message };
+      return { errCode: 1, message: "Lỗi server: " + e.message };
     }
   },
 
@@ -72,7 +85,13 @@ const customerService = {
       await CustomerModel.delete(id);
       return { errCode: 0, message: "Xóa thành công" };
     } catch (e) {
-      return { errCode: 1, message: "Lỗi xóa" };
+      if (e.errno === 1451 || e.code === "ER_ROW_IS_REFERENCED_2") {
+        return {
+          errCode: 1,
+          message: "Không thể xóa: Khách hàng này đã có lịch sử mua hàng!",
+        };
+      }
+      return { errCode: 1, message: "Lỗi hệ thống: " + e.message };
     }
   },
 };
