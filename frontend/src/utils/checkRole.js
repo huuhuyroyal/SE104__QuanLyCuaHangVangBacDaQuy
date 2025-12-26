@@ -53,15 +53,25 @@ export const ROLE_PERMISSIONS = {
     "/ServiceTicket", //xem, tạo
     "/Customer", //xem, tạo, sửa, xóa
     "/Profile", //xem, sửa
+    "/customer-detail/:id",
   ],
 };
 
-export const hasMenuAccess = (path) => {
+export const hasMenuAccess = (currentPath) => {
   const userRole = getUserRole();
   if (!userRole) return false;
   if (userRole === "admin") return true;
+
   const allowedPaths = ROLE_PERMISSIONS[userRole] || [];
-  return allowedPaths.includes(path);
+  return allowedPaths.some((permission) => {
+    if (permission === currentPath) return true;
+    if (permission.includes("/:")) {
+      const basePath = permission.split("/:")[0];
+      return currentPath.startsWith(basePath);
+    }
+
+    return false;
+  });
 };
 
 export const checkActionPermission = (allowedRoles, showMessage = true) => {

@@ -7,7 +7,7 @@ import { routes } from "../routes";
 const ProtectedRoute = ({ children }) => {
   const location = useLocation();
 
-  // Check đăng nhập (Nếu chưa -> về Login)
+  // Check đăng nhập
   if (!isAuthenticated()) {
     return <Navigate to="/login" replace />;
   }
