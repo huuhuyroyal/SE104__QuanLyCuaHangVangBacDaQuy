@@ -266,7 +266,6 @@ const SalesInvoice = () => {
         message.error("Mã này đã tồn tại");
         return;
       }
-      console.log(" Gửi payload:", payload);
       // validate quantities against stock
       const over = items.find(
         (it) =>

@@ -6,7 +6,7 @@
 
 .Product-header {
   display: flex;
-  gap: 5px;
+  gap: 20px;
 }
 .add-product {
   background-color: #a91811;

@@ -9,19 +9,16 @@ import {
   Space,
   Popconfirm,
   InputNumber,
-  Tag
+  Tag,
 } from "antd";
-import {
-  PlusOutlined,
-  DeleteOutlined,
-  EditOutlined,
-} from "@ant-design/icons";
+import { PlusOutlined, DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import {
   getAllServiceTypesService,
   createServiceTypeService,
   updateServiceTypeService,
   deleteServiceTypeService,
 } from "../../services/serviceTypeService";
+import { checkActionPermission } from "../../utils/checkRole";
 
 const ServiceType = () => {
   const [data, setData] = useState([]);
@@ -68,6 +65,7 @@ const ServiceType = () => {
 
   // Open Add Modal
   const handleOpenAdd = () => {
+    if (!checkActionPermission(["admin", "warehouse"])) return;
     setIsEdit(false);
     form.resetFields();
     setIsModalOpen(true);
@@ -75,12 +73,13 @@ const ServiceType = () => {
 
   // Open Edit Modal
   const handleOpenEdit = (record) => {
+    if (!checkActionPermission(["admin", "warehouse"])) return;
     setIsEdit(true);
     form.setFieldsValue({
       MaLoaiDV: record.MaLoaiDV,
       TenLoaiDV: record.TenLoaiDV,
       DonGiaDV: record.DonGiaDV,
-      PhanTramTraTruoc: record.PhanTramTraTruoc
+      PhanTramTraTruoc: record.PhanTramTraTruoc,
     });
     setIsModalOpen(true);
   };
@@ -107,8 +106,8 @@ const ServiceType = () => {
       console.log("Validate Failed:", error);
       // Hiển thị thông báo lỗi đầu tiên (nếu có) bằng popup
       if (error.errorFields && error.errorFields.length > 0) {
-         const firstError = error.errorFields[0].errors[0];
-         message.error(firstError);
+        const firstError = error.errorFields[0].errors[0];
+        message.error(firstError);
       }
     } finally {
       setLoading(false);
@@ -131,58 +130,90 @@ const ServiceType = () => {
   };
 
   const formatCurrency = (value) => {
-    return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value);
+    return new Intl.NumberFormat("vi-VN", {
+      style: "currency",
+      currency: "VND",
+    }).format(value);
   };
 
   // Table Columns Configuration
   const columns = [
     { title: "Mã loại dịch vụ", dataIndex: "MaLoaiDV", width: "15%" },
     { title: "Tên loại dịch vụ", dataIndex: "TenLoaiDV", width: "30%" },
-    { 
-      title: "Đơn giá dịch vụ", 
-      dataIndex: "DonGiaDV", 
-      align: 'right',
-      render: (val) => <span style={{ color: '#1677ff' }}>{formatCurrency(val)}</span> 
+    {
+      title: "Đơn giá dịch vụ",
+      dataIndex: "DonGiaDV",
+      align: "right",
+      render: (val) => (
+        <span style={{ color: "#1677ff" }}>{formatCurrency(val)}</span>
+      ),
     },
-    { 
-      title: "Trả trước", 
-      dataIndex: "PhanTramTraTruoc", 
-      align: 'center',
-      render: (val) => <Tag color="green">{(val * 100).toFixed(0)}%</Tag> 
+    {
+      title: "Trả trước",
+      dataIndex: "PhanTramTraTruoc",
+      align: "center",
+      render: (val) => <Tag color="green">{(val * 100).toFixed(0)}%</Tag>,
     },
     {
       title: "Hành động",
       width: "15%",
-      align: 'center',
-      render: (_, record) => (
-        <Space>
-          <Button
-            icon={<EditOutlined />}
-            onClick={() => handleOpenEdit(record)}
-          />
-          <Popconfirm
-            title="Bạn có chắc muốn xóa?"
-            onConfirm={() => handleDelete(record.MaLoaiDV)}
-            okText="Có"
-            cancelText="Không"
-          >
-            <Button danger icon={<DeleteOutlined />} />
-          </Popconfirm>
-        </Space>
-      ),
+      align: "center",
+      render: (_, record) => {
+        const allowDelete = checkActionPermission(["admin"], false);
+        return (
+          <Space>
+            <Button
+              icon={<EditOutlined />}
+              onClick={() => handleOpenEdit(record)}
+            />
+            {allowDelete ? (
+              <Popconfirm
+                title="Bạn có chắc muốn xóa?"
+                onConfirm={() => handleDelete(record.MaLoaiDV)}
+                okText="Có"
+                cancelText="Không"
+              >
+                <Button danger icon={<DeleteOutlined />} />
+              </Popconfirm>
+            ) : (
+              <Button
+                danger
+                icon={<DeleteOutlined />}
+                size="small"
+                onClick={() =>
+                  message.error("Bạn không có quyền thực hiện chức năng này")
+                }
+              >
+                Xóa
+              </Button>
+            )}
+          </Space>
+        );
+      },
     },
   ];
 
   return (
     <div className="main">
       <div className="Product-main-content">
-        <header className="Product-header" style={{ marginBottom: 16, display: 'flex', justifyContent: 'space-between' }}>
+        <header
+          className="Product-header"
+          style={{
+            marginBottom: 16,
+            display: "flex",
+            justifyContent: "space-between",
+          }}
+        >
           <Input.Search
             placeholder="Tìm theo mã hoặc tên..."
             onChange={handleSearch}
             style={{ width: 300 }}
           />
-          <Button type="primary" icon={<PlusOutlined />} onClick={handleOpenAdd}>
+          <Button
+            type="primary"
+            icon={<PlusOutlined />}
+            onClick={handleOpenAdd}
+          >
             Thêm mới
           </Button>
         </header>
@@ -222,7 +253,7 @@ const ServiceType = () => {
               <Input placeholder="Ví dụ: Đánh bóng trang sức" />
             </Form.Item>
 
-            <div style={{ display: 'flex', gap: '16px' }}>
+            <div style={{ display: "flex", gap: "16px" }}>
               <Form.Item
                 name="DonGiaDV"
                 label="Đơn giá (VNĐ)"
@@ -230,11 +261,13 @@ const ServiceType = () => {
                 rules={[{ required: true, message: "Nhập đơn giá" }]}
                 initialValue={0}
               >
-                <InputNumber 
-                  style={{ width: '100%' }} 
+                <InputNumber
+                  style={{ width: "100%" }}
                   min={0}
-                  formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                  parser={(value) => value?.replace(/\$\s?|(,*)/g, '')}
+                  formatter={(value) =>
+                    `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                  }
+                  parser={(value) => value?.replace(/\$\s?|(,*)/g, "")}
                 />
               </Form.Item>
 
@@ -253,7 +286,9 @@ const ServiceType = () => {
                         }
                         // Thêm điều kiện kiểm tra nếu > 1
                         if (value > 1) {
-                          return Promise.reject(new Error("Không được lớn hơn 1 (100%)"));
+                          return Promise.reject(
+                            new Error("Không được lớn hơn 1 (100%)")
+                          );
                         }
                       }
                       return Promise.resolve();
@@ -262,9 +297,9 @@ const ServiceType = () => {
                 ]}
                 initialValue={0.5}
               >
-                <InputNumber 
-                  style={{ width: '100%' }} 
-                  min={0} 
+                <InputNumber
+                  style={{ width: "100%" }}
+                  min={0}
                   // Bỏ max={1} để người dùng có thể nhập số lớn hơn và thấy thông báo lỗi
                   step={0.1}
                   placeholder="Ví dụ: 0.5"
