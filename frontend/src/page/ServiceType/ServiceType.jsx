@@ -300,7 +300,6 @@ const ServiceType = () => {
                 <InputNumber
                   style={{ width: "100%" }}
                   min={0}
-                  // Bỏ max={1} để người dùng có thể nhập số lớn hơn và thấy thông báo lỗi
                   step={0.1}
                   placeholder="Ví dụ: 0.5"
                 />

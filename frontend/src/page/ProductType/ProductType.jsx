@@ -147,7 +147,7 @@ const ProductType = () => {
     {
       title: "Lợi nhuận",
       dataIndex: "PhanTramLoiNhuan",
-      render: (val) => `${(val * 1).toFixed(0)}%`,
+      render: (val) => `${val*100}%`,
     },
     {
       title: "Hành động",
@@ -247,14 +247,24 @@ const ProductType = () => {
             <Form.Item
               name="PhanTramLoiNhuan"
               label="Tỉ lệ lợi nhuận (0.1 = 10%)"
-              rules={[{ required: true, message: "Nhập % lợi nhuận" }]}
+              rules={[{ required: true, message: "Nhập % lợi nhuận" },
+                      {validator: (_, value) => {
+                        if (value > 1) {
+                          return Promise.reject(
+                            new Error("Không được lớn hơn 1 (100%)")
+                          );
+                        }
+                      return Promise.resolve();
+                    },
+                  },
+                ]}
+                initialValue={0}
             >
               <InputNumber
                 min={0}
-                max={1}
                 step={0.01}
                 style={{ width: "100%" }}
-                placeholder="0.1"
+                placeholder="Ví dụ: 0.1"
               />
             </Form.Item>
           </Form>
