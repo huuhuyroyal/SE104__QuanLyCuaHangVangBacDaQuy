@@ -15,6 +15,20 @@ const unitController = {
     }
   },
 
+  // Lấy mã đơn vị tính tiếp theo
+  getNextUnitCode: async (req, res) => {
+    try {
+      const result = await unitService.getNextUnitCode();
+      res.status(result.errCode === 0 ? 200 : 400).json(result);
+    } catch (error) {
+      res.status(500).json({
+        errCode: 1,
+        message: "Lỗi server",
+        error: error.message,
+      });
+    }
+  },
+
   // Lấy đơn vị tính theo ID
   getUnitById: async (req, res) => {
     try {

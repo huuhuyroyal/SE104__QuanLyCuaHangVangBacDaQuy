@@ -66,6 +66,19 @@ const PurchaseInvoice = () => {
     return `${y}-${m}-${dd}`;
   };
 
+  const generatePurchaseCode = (list = []) => {
+    let maxNum = 0;
+    list.forEach((p) => {
+      const match = /PMH(\d+)/i.exec(p.SoPhieuMH || "");
+      if (match) {
+        const num = parseInt(match[1], 10);
+        if (!Number.isNaN(num) && num > maxNum) maxNum = num;
+      }
+    });
+    const next = maxNum + 1;
+    return `PMH${String(next).padStart(2, "0")}`;
+  };
+
   const fetchSuppliers = async () => {
     try {
       const res = await supplierService.getSuppliers();
@@ -105,8 +118,10 @@ const PurchaseInvoice = () => {
     setEditing(null);
     setItems([]);
     form.resetFields();
-    form.setFieldsValue({ NgayLap: toDateYMD(new Date()) });
+    const autoCode = generatePurchaseCode(purchases);
+    form.setFieldsValue({ NgayLap: toDateYMD(new Date()), SoPhieuMH: autoCode });
     setSelectedSupplier(null);
+    setSelectedSupplierKey(null);
     setVisible(true);
   };
 
@@ -362,7 +377,7 @@ const PurchaseInvoice = () => {
                 label="Mã phiếu"
                 rules={[{ required: true, message: "Vui lòng nhập mã phiếu" }]}
               >
-                <Input disabled={!!editing} />
+                <Input disabled={!!editing} readOnly={!editing} />
               </Form.Item>
             </Col>
             <Col span={12}>

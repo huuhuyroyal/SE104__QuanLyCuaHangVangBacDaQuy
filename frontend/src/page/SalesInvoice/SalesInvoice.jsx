@@ -81,6 +81,19 @@ const SalesInvoice = () => {
     return new Intl.NumberFormat("vi-VN").format(n) + " đ";
   };
 
+  const generateInvoiceCode = (list = []) => {
+    let maxNum = 0;
+    list.forEach((inv) => {
+      const match = /PBH(\d+)/i.exec(inv.SoPhieuBH || "");
+      if (match) {
+        const num = parseInt(match[1], 10);
+        if (!Number.isNaN(num) && num > maxNum) maxNum = num;
+      }
+    });
+    const next = maxNum + 1;
+    return `PBH${String(next).padStart(2, "0")}`;
+  };
+
   useEffect(() => {
     fetchInvoices();
   }, []);
@@ -107,9 +120,11 @@ const SalesInvoice = () => {
     setSelectedCustomer(null);
     setSelectedCustomerKey(null);
     setDuplicateInvoice(false);
-    // set NgayLap default to today's date (YYYY-MM-DD)
-    form.setFieldsValue({ NgayLap: toDateYMD(new Date()) });
+    const autoCode = generateInvoiceCode(invoices);
+    const defaultDate = toDateYMD(new Date());
+    form.setFieldsValue({ NgayLap: defaultDate, SoPhieuBH: autoCode });
     setVisible(true);
+    checkDuplicateSoPhieu(autoCode);
   };
 
   const checkDuplicateSoPhieu = async (value) => {
@@ -557,6 +572,7 @@ const SalesInvoice = () => {
               >
                 <Input
                   disabled={!!editing}
+                  readOnly={!editing}
                   onChange={(e) => {
                     const value = e.target.value;
                     form.setFieldsValue({ SoPhieuBH: value });

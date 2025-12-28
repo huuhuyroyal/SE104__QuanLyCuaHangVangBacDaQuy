@@ -23,6 +23,19 @@ const SupplierPage = () => {
   const [selectedSupplier, setSelectedSupplier] = useState(null);
   const [form] = Form.useForm();
 
+  const generateSupplierCode = (list = []) => {
+    let maxNum = 0;
+    list.forEach((s) => {
+      const match = /NCC(\d+)/i.exec(s.MaNCC || "");
+      if (match) {
+        const num = parseInt(match[1], 10);
+        if (!Number.isNaN(num) && num > maxNum) maxNum = num;
+      }
+    });
+    const next = maxNum + 1;
+    return `NCC${String(next).padStart(2, "0")}`;
+  };
+
   useEffect(() => {
     loadSuppliers();
   }, []);
@@ -75,6 +88,8 @@ const SupplierPage = () => {
     setIsEditMode(false);
     setSelectedSupplier(null);
     form.resetFields();
+    const autoCode = generateSupplierCode(data);
+    form.setFieldsValue({ maNCC: autoCode });
     setIsModalVisible(true);
   };
 
@@ -252,7 +267,11 @@ const SupplierPage = () => {
               { required: true, message: "Vui lòng nhập mã nhà cung cấp" },
             ]}
           >
-            <Input placeholder="Ví dụ: NCC01" disabled={isEditMode} />
+            <Input
+              placeholder="Ví dụ: NCC01"
+              disabled={isEditMode}
+              readOnly={!isEditMode}
+            />
           </Form.Item>
 
           <Form.Item

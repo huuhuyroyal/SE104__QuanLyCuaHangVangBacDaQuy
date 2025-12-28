@@ -1,4 +1,5 @@
 import unitModel from "../models/unitModel.js";
+import { connection } from "../config/connectDB.js";
 
 const unitService = {
   // Lấy tất cả đơn vị tính
@@ -15,6 +16,39 @@ const unitService = {
       return {
         errCode: 1,
         message: "Lỗi lấy danh sách đơn vị tính",
+        error: error.message,
+      };
+    }
+  },
+
+  // Sinh mã đơn vị tính tiếp theo với tiền tố DVT
+  getNextUnitCode: async () => {
+    const prefix = "DVT";
+    try {
+      // Lấy mã có số thứ tự lớn nhất hiện có
+      const [rows] = await connection.query(
+        `SELECT MaDVT FROM DONVITINH
+         WHERE MaDVT LIKE '${prefix}%'
+         ORDER BY CAST(SUBSTRING(MaDVT, ${prefix.length + 1}) AS UNSIGNED) DESC
+         LIMIT 1`
+      );
+
+      const current = rows?.[0]?.MaDVT || null;
+      const numericPart = current
+        ? parseInt(current.slice(prefix.length), 10)
+        : 0;
+      const nextNumber = Number.isNaN(numericPart) ? 1 : numericPart + 1;
+
+      // Giữ tối thiểu 2 chữ số, hoặc chiều dài chữ số lớn nhất đã có
+      const padding = Math.max(2, (current || `${prefix}00`).length - prefix.length);
+      const code = `${prefix}${String(nextNumber).padStart(padding, "0")}`;
+
+      return { errCode: 0, message: "Lấy mã mới thành công", code };
+    } catch (error) {
+      console.error("Error in getNextUnitCode:", error);
+      return {
+        errCode: 1,
+        message: "Lỗi sinh mã đơn vị tính",
         error: error.message,
       };
     }

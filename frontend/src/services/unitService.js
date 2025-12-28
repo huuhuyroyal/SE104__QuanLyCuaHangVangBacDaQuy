@@ -43,6 +43,16 @@ const unitService = {
     }
   },
 
+  // Lấy mã đơn vị tính mới
+  getNextCode: async () => {
+    try {
+      const response = await axios.get("/api/units/next-code");
+      return response;
+    } catch (error) {
+      return error.response && error.response.data ? error.response.data : { errCode: 1, message: error.message };
+    }
+  },
+
   // Cập nhật đơn vị tính
   updateUnit: async (id, data) => {
     try {

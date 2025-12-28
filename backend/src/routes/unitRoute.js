@@ -16,6 +16,14 @@ const initUnitRoute = (app) => {
     unitController.searchUnits
   );
 
+  // Lấy mã đơn vị tính mới
+  router.get(
+    "/api/units/next-code",
+    verifyRole.verifyToken,
+    verifyRole.checkPermission(["admin", "warehouse"]),
+    unitController.getNextUnitCode
+  );
+
   // Lấy đơn vị tính theo ID
   router.get(
     "/api/units/:id",

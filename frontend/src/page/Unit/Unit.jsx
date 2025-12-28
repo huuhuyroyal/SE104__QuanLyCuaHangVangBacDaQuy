@@ -82,12 +82,25 @@ const Unit = () => {
   };
 
   // Mở modal thêm mới
-  const handleAddUnit = () => {
+  const handleAddUnit = async () => {
     if (!checkActionPermission(["admin", "warehouse"])) return;
     setIsEditMode(false);
     setSelectedUnit(null);
     form.resetFields();
     setIsModalVisible(true);
+    try {
+      const res = await unitService.getNextCode();
+      if (res?.code) {
+        form.setFieldsValue({ maDVT: res.code });
+      } else if (res?.data?.code) {
+        form.setFieldsValue({ maDVT: res.data.code });
+      } else {
+        message.error(res?.message || "Không lấy được mã mới");
+      }
+    } catch (err) {
+      const msg = err?.response?.data?.message || err.message;
+      message.error(msg || "Không lấy được mã mới");
+    }
   };
 
   // Mở modal chỉnh sửa
@@ -260,6 +273,7 @@ const Unit = () => {
         confirmLoading={loading}
         okText="Lưu"
         cancelText="Hủy"
+        forceRender
       >
         <Form form={form} layout="vertical" onFinish={handleSubmit}>
           <Form.Item
